@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "354116918831",
+    "project_id": "quick-cash-a5c67",
+    "storage_bucket": "quick-cash-a5c67.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:354116918831:android:49fc05196eb15ec652f0da",
+        "android_client_info": {
+          "package_name": "com.example.universityclassroommanagement"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1IDflTwxHk6P5N41gM55brfdv3glRCgk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
