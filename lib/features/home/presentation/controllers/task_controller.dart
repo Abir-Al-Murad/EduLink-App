@@ -1,17 +1,27 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:universityclassroommanagement/app/collections.dart';
+import 'package:universityclassroommanagement/core/services/auth_controller.dart';
 import 'package:universityclassroommanagement/features/home/data/model/task_model.dart';
 
 class TaskController extends GetxController{
-  final taskCollection = FirebaseFirestore.instance.collection(Collectons.Tasks);
+
   bool _isLoading = false;
   bool get isLoading => _isLoading;
-  Future<bool> addNewTask(TaskModel model) async {
+  Future<bool> addNewTask(TaskModel model,String classDocId) async {
     try {
-      await taskCollection.add(
-        model.toFireStore(model.title, model.description, model.deadline),
-      );
+      final taskCollection = FirebaseFirestore.instance
+          .collection(Collectons.classes)
+          .doc(classDocId)
+          .collection(Collectons.tasks);
+
+
+      await taskCollection.add(model.toFireStore(
+        model.title,
+        model.description,
+        model.deadline,
+      ));
+      print('Task Added at : ${classDocId}');
       update();
       return true; // success
     } catch (e) {
@@ -20,10 +30,14 @@ class TaskController extends GetxController{
     }
   }
 
-  Future<bool> deleteTask(String id) async {
+  Future<bool> deleteTask(String id,String classDocId) async {
     _isLoading = true;
     update();
     try {
+      final taskCollection = FirebaseFirestore.instance
+          .collection(Collectons.classes)
+          .doc(classDocId)
+          .collection(Collectons.tasks);
       await taskCollection.doc(id).delete();
       update();
       return true;

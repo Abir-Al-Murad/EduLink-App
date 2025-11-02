@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_state_manager/src/simple/get_state.dart';
+import 'package:universityclassroommanagement/core/services/auth_controller.dart';
 import 'package:universityclassroommanagement/features/shared/presentaion/widgets/ShowSnackBarMessage.dart';
 
 import '../../../../app/app_colors.dart';
@@ -130,7 +131,7 @@ Future<dynamic> buildShowDialog(BuildContext context, TaskModel item) {
                           shadowColor: Colors.red.withOpacity(0.4),
                         ),
                         onPressed: () async {
-                          bool isDeleted = await controller.deleteTask(item.id!);
+                          bool isDeleted = await controller.deleteTask(item.id!,AuthController.classDocId!);
                           Navigator.pop(context);
                           ShowSnackBarMessage(
                             context,

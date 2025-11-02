@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:universityclassroommanagement/core/services/auth_controller.dart';
 import 'package:universityclassroommanagement/features/notice/data/models/notice_model.dart';
 import 'package:universityclassroommanagement/features/notice/presentation/controllers/add_notice_controler.dart';
 import 'package:universityclassroommanagement/features/shared/presentaion/widgets/ShowSnackBarMessage.dart';
@@ -55,7 +56,7 @@ class _AddNoticeState extends State<AddNotice> {
                     child: ElevatedButton(
                       onPressed: ()async{
                         NoticeModel model = NoticeModel(title: _titleController.text.trim(), description: _descriptionController.text.trim(), createdAt: Timestamp.now());
-                        bool result = await controller.addNotice(model);
+                        bool result = await controller.addNotice(model,AuthController.classDocId!);
                         if(result){
                           ShowSnackBarMessage(context, "Notice Added Successfully");
                           Navigator.pop(context,true);

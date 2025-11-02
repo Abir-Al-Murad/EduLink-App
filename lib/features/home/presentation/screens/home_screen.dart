@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:universityclassroommanagement/app/app_colors.dart';
 import 'package:universityclassroommanagement/app/collections.dart';
+import 'package:universityclassroommanagement/core/services/auth_controller.dart';
 import 'package:universityclassroommanagement/features/home/data/model/task_model.dart';
 import 'package:universityclassroommanagement/features/home/presentation/controllers/task_controller.dart';
 import 'package:universityclassroommanagement/features/home/presentation/screens/add_task_screen.dart';
@@ -22,9 +23,20 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
+    print(AuthController.classDocId);
+    print(AuthController.isAdmin);
     return Scaffold(
-      body: FutureBuilder(
-        future: FirebaseFirestore.instance.collection(Collectons.Tasks).get(),
+      appBar: AppBar(
+        title: Text("StudyHub"),
+        centerTitle: true,
+      ),
+      body: FutureBuilder<QuerySnapshot>(
+        future: FirebaseFirestore.instance
+            .collection(Collectons.classes)
+            .doc(AuthController.classDocId)
+            .collection(Collectons.tasks)
+            .orderBy('assignedDate', descending: true)
+            .get(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
@@ -36,20 +48,21 @@ class _HomeScreenState extends State<HomeScreen> {
             return Center(child: Text("No Data Found"));
           }
 
-          final data = snapshot.data;
+          final docs = snapshot.data!.docs;
           final user = FirebaseAuth.instance.currentUser!.uid;
-          final listOfData = data?.docs
+
+          final listOfData = docs
               .where((doc) {
-            final d = doc.data();
-            final doneListRaw = d['done'] != null
-                ? List<String>.from(d['done'])
+            final data = doc.data() as Map<String, dynamic>;
+            final doneList = data['completedBy'] != null
+                ? List<String>.from(data['completedBy'])
                 : <String>[];
-            print(doneListRaw);
-            return !doneListRaw.contains(user);
+            return !doneList.contains(user);
           })
-              .map((e) => TaskModel.fromFireStore(e.data(), e.id))
-              .toList() ?? [];
-          
+              .map((doc) => TaskModel.fromFireStore(doc.data() as Map<String, dynamic>, doc.id))
+              .toList();
+
+
           return SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(18.0),
@@ -67,24 +80,26 @@ class _HomeScreenState extends State<HomeScreen> {
                         "Tasks",
                         style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                       ),
-                      FilledButton(
-                        onPressed: ()async {
-                          await onTapAddToTask();
-                        },
-                        style: FilledButton.styleFrom(
-                          backgroundColor: AppColors.royalThemeColor,
-                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                          minimumSize: Size(0, 0),
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)
-                          )
+                      if(AuthController.isAdmin)
+                        FilledButton(
+                          onPressed: ()async {
+                            await onTapAddToTask();
+                          },
+                          style: FilledButton.styleFrom(
+                              backgroundColor: AppColors.royalThemeColor,
+                              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                              minimumSize: Size(0, 0),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8)
+                              )
+                          ),
+                          child: Text(
+                            "Add Task",
+                            style: TextStyle(fontSize: 14), // smaller text
+                          ),
                         ),
-                        child: Text(
-                          "Add Task",
-                          style: TextStyle(fontSize: 14), // smaller text
-                        ),
-                      ),
+
                     ],
                   ),
             

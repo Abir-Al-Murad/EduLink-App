@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:universityclassroommanagement/app/collections.dart';
+import 'package:universityclassroommanagement/core/services/auth_controller.dart';
 import 'package:universityclassroommanagement/features/routine/data/models/routine_model.dart';
 import 'package:universityclassroommanagement/features/routine/presentation/screens/add_routine_screen.dart';
 import 'package:universityclassroommanagement/features/shared/presentaion/widgets/icon_filled_button.dart';
@@ -41,9 +42,9 @@ class _RoutineScreenState extends State<RoutineScreen>
 
   Future<List<RoutineModel>> fetchRoutine(String day) async {
     final snapshot = await FirebaseFirestore.instance
-        .collection(Collectons.routine)
+        .collection(Collectons.classes).doc(AuthController.classDocId).collection(Collectons.routine)
         .doc(day)
-        .collection(Collectons.classes)
+        .collection(Collectons.dayRoutine)
         .orderBy('time', descending: false)
         .get();
 
@@ -55,7 +56,9 @@ class _RoutineScreenState extends State<RoutineScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      appBar: AppBar(
+        title: Text("Routine"),
+      ),
       body: Column(
         children: [
           TabBar(
@@ -122,8 +125,8 @@ class _RoutineScreenState extends State<RoutineScreen>
               }).toList(),
             ),
           ),
-          IconFilledButton(onTap: onTapAddRoutine, title: "Add Routine")
-
+          if(AuthController.isAdmin)
+            IconFilledButton(onTap: onTapAddRoutine, title: "Add Routine")
         ],
       ),
     );

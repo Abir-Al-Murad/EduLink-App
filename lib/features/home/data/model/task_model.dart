@@ -20,7 +20,7 @@ class TaskModel{
       'description': description,
       'deadline':deadline,
       'assignedDate':Timestamp.now(),
-      'done':[],
+      'completedBy':[],
     };
   }
 

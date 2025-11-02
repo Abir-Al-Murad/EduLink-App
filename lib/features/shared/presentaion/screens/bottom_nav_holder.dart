@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:universityclassroommanagement/features/home/presentation/screens/home_screen.dart';
 import 'package:universityclassroommanagement/features/notice/presentation/screens/notice_screen.dart';
+import 'package:universityclassroommanagement/features/profile/presentaion/screens/profile_screen.dart';
 import 'package:universityclassroommanagement/features/routine/presentation/screens/routine_screen.dart';
 import 'package:universityclassroommanagement/features/shared/presentaion/controllers/main_nav_controller.dart';
 
@@ -18,7 +19,7 @@ class _BottomNavHolderState extends State<BottomNavHolder> {
     HomeScreen(),
     NoticeScreen(),
     RoutineScreen(),
-    HomeScreen(),
+    ProfileScreen(),
   ];
   final MainNavControler mainNavControler = Get.find<MainNavControler>();
 
@@ -27,10 +28,6 @@ class _BottomNavHolderState extends State<BottomNavHolder> {
     return GetBuilder<MainNavControler>(
       builder: (controller) {
         return Scaffold(
-          appBar: AppBar(
-            title: Text('StudyHub'),
-            centerTitle: true,
-          ),
           body: _screens[controller.selectedIndex],
           bottomNavigationBar: NavigationBar(
             selectedIndex: controller.selectedIndex,

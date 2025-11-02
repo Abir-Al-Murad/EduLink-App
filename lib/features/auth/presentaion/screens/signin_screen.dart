@@ -1,11 +1,18 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:universityclassroommanagement/app/assets_path.dart';
+import 'package:universityclassroommanagement/features/auth/presentaion/controllers/signin_and_signup_controller.dart';
 import 'package:universityclassroommanagement/features/auth/presentaion/screens/signup_screen.dart';
-import 'package:universityclassroommanagement/features/home/presentation/screens/home_screen.dart';
-import 'package:universityclassroommanagement/features/shared/presentaion/screens/bottom_nav_holder.dart';
+import 'package:universityclassroommanagement/features/auth/presentaion/widgets/eleveted_button_with_logo.dart';
+import 'package:universityclassroommanagement/features/classroom/presentation/screens/my_classrooms_screen.dart';
+import 'package:universityclassroommanagement/features/shared/presentaion/widgets/ShowSnackBarMessage.dart';
+import 'package:universityclassroommanagement/features/shared/presentaion/widgets/centered_circular_progress.dart';
+
+import '../widgets/hero_logo.dart';
 
 class SigninScreen extends StatefulWidget {
   const SigninScreen({super.key});
@@ -16,102 +23,115 @@ class SigninScreen extends StatefulWidget {
 }
 
 class _SigninScreenState extends State<SigninScreen> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final SigninAndSignupController _signinAndSignupController = Get.find<SigninAndSignupController>();
 
-  Future<void> signInWithGoogle() async {
-    try {
-      // Trigger Google sign-in
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) return; // Cancelled by user
-
-      // Get auth details
-      final GoogleSignInAuthentication googleAuth =
-      await googleUser.authentication;
-
-      // Firebase credential
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      // Sign in Firebase
-      final userCredential = await _auth.signInWithCredential(credential);
-      final user = userCredential.user;
-      final token = await FirebaseMessaging.instance.getToken();
-
-
-
-      if (user != null) {
-        // Save user data to Firestore (if not exists)
-        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-          'uid': user.uid,
-          'name': user.displayName,
-          'email': user.email,
-          'photoUrl': user.photoURL,
-          'lastLogin': FieldValue.serverTimestamp(),
-          'fcmToken': token,
-        }, SetOptions(merge: true));
-
-        // Success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Signed in successfully!')),
-        );
-
-        // Go to HomeScreen
-        Navigator.pushReplacementNamed(context, BottomNavHolder.name);
-      }
-    } catch (e) {
-      debugPrint('Google sign-in error: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
-    }
+  @override
+  void initState() {
+    super.initState();
   }
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sign In'),
-        centerTitle: true,
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Stack(
           children: [
-            const Icon(Icons.school, size: 100, color: Colors.blueAccent),
-            const SizedBox(height: 40),
-            const Text(
-              'Welcome Back!',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton.icon(
-              onPressed: signInWithGoogle,
-              // icon: Image.asset(
-              //   'assets/google.png',
-              //   height: 24,
-              // ),
-              label: const Text('Sign in with Google'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black,
-                padding:
-                const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                elevation: 3,
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: GetBuilder<SigninAndSignupController>(
+                builder: (controller) {
+                  return Column(
+                    children: [
+                      const SizedBox(height: 120),
+                      HeroLogo(tag: 'logo', imagePath: AssetsPath.eduLinkLogo),
+                      const Text(
+                        'Sign in to manage your classrooms',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 20),
+                      // ✅ Google Sign In button
+                      ElelvetedButtonWithLogo(
+                        onTap: _onTapSignIn,
+                        titleText: 'Continue with Google',
+                        image: AssetsPath.googleLogo,
+                      ),
+                      const SizedBox(height: 20),
+                      Divider(
+                        color: Colors.grey.shade300,
+                        thickness: 1,
+                        height: 20,
+                      ),
+                      const SizedBox(height: 5),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            "Don't have an account?",
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                          const SizedBox(width: 8),
+                          TextButton(
+                            onPressed: _onTapSignUp,
+                            child: const Text(
+                              'Sign Up',
+                              style: TextStyle(
+                                color: Colors.blueAccent,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
-            FilledButton(onPressed: (){
-              Navigator.pushNamed(context, SignupScreen.name);
-            }, child: Text("SignUp"))
+            GetBuilder<SigninAndSignupController>(
+              builder: (controller) {
+                if (controller.isLoading) {
+                  return Container(
+                    color: Colors.black54,
+                    child: const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
           ],
         ),
       ),
     );
   }
+
+
+
+
+  Future<void> _onTapSignIn()async{
+    bool isSuccess =await _signinAndSignupController.signInWithGoogle();
+    if(isSuccess){
+      Navigator.pushNamedAndRemoveUntil(context, MyClassrooms.name, (predicate)=>false);
+    }else{
+      ShowSnackBarMessage(context, _signinAndSignupController.errorMessage??"Something went wrong");
+    }
+  }
+  Future<void> _onTapSignUp()async{
+    bool isSuccess =await _signinAndSignupController.signUpWithGoogle();
+    if(isSuccess){
+      Navigator.pushNamedAndRemoveUntil(context, MyClassrooms.name, (predicate)=>false);
+    }else{
+      ShowSnackBarMessage(context, _signinAndSignupController.errorMessage??"Something went wrong");
+    }
+  }
+
 }
+
+

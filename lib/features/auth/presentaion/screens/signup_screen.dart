@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:universityclassroommanagement/features/classroom/presentation/screens/my_classrooms_screen.dart';
 import 'package:universityclassroommanagement/features/home/presentation/screens/home_screen.dart';
 import 'package:universityclassroommanagement/features/shared/presentaion/screens/bottom_nav_holder.dart';
 
@@ -48,7 +49,7 @@ class _SignupScreenState extends State<SignupScreen> {
         );
 
         // Navigate to home page
-        Navigator.pushNamed(context, BottomNavHolder.name);
+        Navigator.pushNamedAndRemoveUntil(context, MyClassrooms.name,(predicate)=>false);
       }
     } catch (e) {
       debugPrint('Google sign-in error: $e');

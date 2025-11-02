@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:universityclassroommanagement/app/app_colors.dart';
 import 'package:universityclassroommanagement/app/collections.dart';
+import 'package:universityclassroommanagement/core/services/auth_controller.dart';
 
 class AddRoutineScreen extends StatefulWidget {
   const AddRoutineScreen({super.key, required this.day});
@@ -32,10 +33,10 @@ class _AddRoutineScreenState extends State<AddRoutineScreen> {
         'createdAt': Timestamp.now(),
       };
 
-      await FirebaseFirestore.instance
+      await FirebaseFirestore.instance.collection(Collectons.classes).doc(AuthController.classDocId)
           .collection(Collectons.routine)
           .doc(widget.day)
-          .collection(Collectons.classes)
+          .collection(Collectons.dayRoutine)
           .add(routineData);
 
       ScaffoldMessenger.of(context).showSnackBar(

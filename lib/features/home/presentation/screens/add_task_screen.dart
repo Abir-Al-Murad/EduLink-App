@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:universityclassroommanagement/core/services/auth_controller.dart';
 import 'package:universityclassroommanagement/features/home/data/model/task_model.dart';
 import 'package:universityclassroommanagement/features/home/presentation/controllers/task_controller.dart';
 import 'package:universityclassroommanagement/features/shared/presentaion/widgets/ShowSnackBarMessage.dart';
@@ -149,7 +150,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       return;
     }else{
       TaskModel model = TaskModel(title: titleController.text.trim(), description: descriptionController.text.trim(), deadline: Timestamp.fromDate(deadline!));
-     final bool isSucces =  await _taskController.addNewTask(model);
+     final bool isSucces =  await _taskController.addNewTask(model,AuthController.classDocId!);
      if(isSucces){
        titleController.clear();
        descriptionController.clear();
