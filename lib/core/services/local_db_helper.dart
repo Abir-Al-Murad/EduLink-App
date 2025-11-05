@@ -9,6 +9,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:universityclassroommanagement/features/profile/data/models/user_model.dart';
 
+import '../../features/classroom/data/models/class_room_model.dart';
+
 class LocalDbHelper {
   LocalDbHelper._();
   static LocalDbHelper getInstance() {
@@ -23,6 +25,19 @@ class LocalDbHelper {
   static final String COLUMN_FCMTOKEN = 'fcmToken';
   static final String COLUMN_JOINED_CLASSES = 'joinedClasses';
   static final String COLUMN_LASTLOGIN = 'lastLogin';
+
+
+  static final String TABLE_CLASSES = 'classes';
+
+  static final String COLUMN_CLASS_ID = 'id';
+  static final String COLUMN_CLASS_NAME = 'name';
+  static final String COLUMN_SUBJECT = 'subject';
+  static final String COLUMN_CREATED_BY = 'createdBy';
+  static final String COLUMN_CREATED_AT = 'createdAt';
+  static final String COLUMN_STUDENTS = 'students';
+  static final String COLUMN_ADMINS = 'admins';
+
+
   Database? myDB;
 
   Future<Database> getDB() async {
@@ -40,6 +55,7 @@ class LocalDbHelper {
 
     return await openDatabase(
       dpPath,
+      version: 2,
       onCreate: (db, version) async {
         await db.execute('''
       CREATE TABLE $Table_users(
@@ -52,11 +68,39 @@ class LocalDbHelper {
         $COLUMN_LASTLOGIN INTEGER
       )
     ''');
+
+        await db.execute('''
+      CREATE TABLE $TABLE_CLASSES(
+        $COLUMN_CLASS_ID TEXT PRIMARY KEY,
+        $COLUMN_CLASS_NAME TEXT NOT NULL,
+        $COLUMN_SUBJECT TEXT NOT NULL,
+        $COLUMN_CREATED_BY TEXT NOT NULL,
+        $COLUMN_CREATED_AT INTEGER NOT NULL,
+        $COLUMN_STUDENTS TEXT,
+        $COLUMN_ADMINS TEXT
+      )
+    ''');
       },
-      version: 1,
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          // Create classes table if upgrading from version 1
+          await db.execute('''
+        CREATE TABLE IF NOT EXISTS $TABLE_CLASSES(
+          $COLUMN_CLASS_ID TEXT PRIMARY KEY,
+          $COLUMN_CLASS_NAME TEXT NOT NULL,
+          $COLUMN_SUBJECT TEXT NOT NULL,
+          $COLUMN_CREATED_BY TEXT NOT NULL,
+          $COLUMN_CREATED_AT INTEGER NOT NULL,
+          $COLUMN_STUDENTS TEXT,
+          $COLUMN_ADMINS TEXT
+        )
+      ''');
+        }
+      },
     );
 
-    }
+
+  }
   Future<bool> addUser({required UserModel model}) async {
     try {
       final db = await getDB();
@@ -126,6 +170,77 @@ class LocalDbHelper {
     } catch (e) {
       debugPrint("Error getting user: $e");
       return null;
+    }
+  }
+
+  Future<void> addClassRoom({required ClassRoomModel model}) async {
+    try {
+      final db = await getDB();
+      String studentsJson = jsonEncode(model.students);
+      String adminsJson = jsonEncode(model.admins);
+      int createdAtMillis = model.createdAt.millisecondsSinceEpoch;
+      await db.insert(
+        TABLE_CLASSES,
+        {
+          COLUMN_CLASS_ID: model.id,
+          COLUMN_CLASS_NAME: model.name,
+          COLUMN_SUBJECT: model.subject,
+          COLUMN_CREATED_BY: model.createdBy,
+          COLUMN_CREATED_AT: createdAtMillis,
+          COLUMN_STUDENTS: studentsJson,
+          COLUMN_ADMINS: adminsJson,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+
+      debugPrint("✅ Class inserted successfully: ${model.name}");
+    } catch (e) {
+      debugPrint("❌ Error adding class: $e");
+    }
+  }
+
+  Future<List<ClassRoomModel>> getAllClasses() async {
+    try {
+      final db = await getDB();
+
+      // Query all rows from classes table
+      final result = await db.query(TABLE_CLASSES);
+
+      if (result.isNotEmpty) {
+        // Map each row to ClassRoomModel
+        return result.map((map) {
+          // Decode students list
+          List<String> students = [];
+          if (map[COLUMN_STUDENTS] != null) {
+            students = List<String>.from(jsonDecode(map[COLUMN_STUDENTS] as String));
+          }
+
+          // Decode admins list
+          List<String> admins = [];
+          if (map[COLUMN_ADMINS] != null) {
+            admins = List<String>.from(jsonDecode(map[COLUMN_ADMINS] as String));
+          }
+
+          // Parse createdAt from milliseconds
+          Timestamp createdAt = Timestamp.fromMillisecondsSinceEpoch(map[COLUMN_CREATED_AT] as int);
+
+          return ClassRoomModel(
+            id: map[COLUMN_CLASS_ID] as String,
+            name: map[COLUMN_CLASS_NAME] as String,
+            subject: map[COLUMN_SUBJECT] as String,
+            createdBy: map[COLUMN_CREATED_BY] as String,
+            createdAt: createdAt,
+            students: students,
+            admins: admins,
+          );
+        }).toList();
+      } else {
+        debugPrint("⚠️ No classes found in local DB");
+        return [];
+      }
+    } catch (e) {
+      debugPrint("❌ Error getting classes: $e");
+      return [];
     }
   }
 

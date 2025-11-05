@@ -126,7 +126,10 @@ class _RoutineScreenState extends State<RoutineScreen>
             ),
           ),
           if(AuthController.isAdmin)
-            IconFilledButton(onTap: onTapAddRoutine, title: "Add Routine")
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: IconFilledButton(onTap: onTapAddRoutine, title: "Add Routine"),
+            )
         ],
       ),
     );

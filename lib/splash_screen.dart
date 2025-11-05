@@ -27,8 +27,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
     LocalDbHelper dbInstance = LocalDbHelper.getInstance();
     AuthController.user = await dbInstance.getUser();
-    print({"Splash screen: ${AuthController.user!.name}"});
-
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       print("✅ User granted permission");
     } else {

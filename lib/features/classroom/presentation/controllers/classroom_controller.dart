@@ -1,9 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:universityclassroommanagement/app/collections.dart';
 import 'package:universityclassroommanagement/core/services/auth_controller.dart';
 import 'package:universityclassroommanagement/features/classroom/data/models/class_room_model.dart';
-import 'package:universityclassroommanagement/features/shared/data/model/user_model.dart';
+import 'package:universityclassroommanagement/features/profile/data/models/user_model.dart';
+import 'package:universityclassroommanagement/features/shared/presentaion/widgets/ShowSnackBarMessage.dart';
 
 class ClassRoomController extends GetxController {
   UserModel? _currentUser;
@@ -34,22 +37,26 @@ class ClassRoomController extends GetxController {
         _errorMessage = 'User Not Found';
         return false;
       }
-      final user = UserModel.fromFireStore(userDoc.data()!);
-      print(user);
-      _currentUser = user;
-      print(user.joinedClasses);
-      final joinedClassesDocIds = user.joinedClasses;
+      final modelUser = UserModel.fromFireStore(userDoc.data()!);
+      AuthController.user = modelUser;
+      print(modelUser);
+      _currentUser = modelUser;
+      print(modelUser.joinedClasses);
+      final joinedClassesDocIds = modelUser.joinedClasses;
       if (joinedClassesDocIds.isEmpty) {
+        debugPrint("Your Joined Class List is Empty");
         _myClassList = [];
         isSuccess = true;
       } else {
+        debugPrint("Your Joined class list : $joinedClassesDocIds");
         final classSnapshot = await FirebaseFirestore.instance
-            .collection('classes')
+            .collection(Collectons.classes)
             .where(FieldPath.documentId, whereIn: joinedClassesDocIds)
             .get();
         final classList = List<ClassRoomModel>.from(
           classSnapshot.docs.map((e) => ClassRoomModel.fromFireStore(e.data(),e.id)),
         );
+        debugPrint("Your joined class list:$classList");
         _myClassList = classList;
       }
       _isLoading =false;

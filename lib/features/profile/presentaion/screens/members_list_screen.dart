@@ -3,9 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:universityclassroommanagement/app/collections.dart';
 import 'package:universityclassroommanagement/core/services/auth_controller.dart';
 import 'package:universityclassroommanagement/features/classroom/data/models/class_room_model.dart';
+import 'package:universityclassroommanagement/features/profile/data/models/user_model.dart';
 import 'package:universityclassroommanagement/features/shared/presentaion/utils/check_admin.dart';
-
-import '../../../shared/data/model/user_model.dart';
 
 class MembersListScreen extends StatefulWidget {
   const MembersListScreen({super.key});
@@ -71,8 +70,8 @@ class _MembersListScreenState extends State<MembersListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print(adminsIdList);
-    print(members);
+    debugPrint("Number of Admins: ${adminsIdList.length}");
+    debugPrint("Number of members: ${members.length}");
     return Scaffold(
       appBar: AppBar(
         title: const Text("Members"),
@@ -85,8 +84,17 @@ class _MembersListScreenState extends State<MembersListScreen> {
         itemCount: members.length,
         itemBuilder: (context, index) {
           final user = members[index];
-          final isAdmin = adminsIdList[index].uid == user.uid;
-          print(isAdmin);
+          bool isAdmin = false;
+          if(adminsIdList.isNotEmpty){
+            for(int i =0;i<adminsIdList.length;i++){
+              if (adminsIdList[i].uid == user.uid) {
+                isAdmin = true;
+                break;
+              }else{
+                isAdmin = false;
+              }
+            }
+          }
           return ListTile(
             leading: CircleAvatar(
               backgroundImage: NetworkImage(user.photoUrl!),

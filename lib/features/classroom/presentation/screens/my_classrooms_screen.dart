@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:universityclassroommanagement/core/services/auth_controller.dart';
+import 'package:universityclassroommanagement/core/services/local_db_helper.dart';
 import 'package:universityclassroommanagement/features/classroom/data/models/class_room_model.dart';
 import 'package:universityclassroommanagement/features/classroom/presentation/controllers/classroom_controller.dart';
 import 'package:universityclassroommanagement/features/classroom/presentation/widgets/class_room_card.dart';
@@ -159,6 +160,9 @@ class _MyClassroomsState extends State<MyClassrooms> {
                 return ClassroomCard(
                   classroom: myClasses[index],
                   onTap: () async {
+                    LocalDbHelper db =  LocalDbHelper.getInstance();
+                    db.addClassRoom(model: myClasses[index]);
+                    AuthController.currentClassRoom = myClasses[index];
                     AuthController.isAdmin = await checkAdmin(
                         myClasses[index].id!, user!.uid);
                     AuthController.classDocId = myClasses[index].id;
@@ -371,46 +375,59 @@ class _MyClassroomsState extends State<MyClassrooms> {
                       ),
                       child: const Text("Cancel"),
                     ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.themeColor,
-                      ),
-                      onPressed: () async {
-                        final name = nameController.text.trim();
-                        final subject = subjectController.text.trim();
+                    GetBuilder<ClassRoomController>(
+                      builder: (controller) {
+                        print("Loading: ${controller.isLoading}");
+                        return controller.isLoading
+                            ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            color: AppColors.themeColor,
+                            strokeWidth: 2,
+                          ),
+                        ):ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.themeColor,
+                          ),
+                          onPressed: () async {
+                            final name = nameController.text.trim();
+                            final subject = subjectController.text.trim();
 
-                        if (name.isEmpty || subject.isEmpty) {
-                          ShowSnackBarMessage(context, "Please fill all fields");
-                          return;
-                        }
+                            if (name.isEmpty || subject.isEmpty) {
+                              ShowSnackBarMessage(context, "Please fill all fields");
+                              return;
+                            }
 
-                        if (user != null) {
-                          ClassRoomModel model = ClassRoomModel(
-                            name: name,
-                            subject: subject,
-                            createdBy: user!.uid,
-                            createdAt: Timestamp.now(),
-                            students: [user!.uid],
-                            admins: [user!.uid],
-                          );
+                            if (user != null) {
+                              ClassRoomModel model = ClassRoomModel(
+                                name: name,
+                                subject: subject,
+                                createdBy: user!.uid,
+                                createdAt: Timestamp.now(),
+                                students: [user!.uid],
+                                admins: [user!.uid],
+                              );
 
-                          final result = await _classRoomController.createClass(model, user!.uid);
-                          if (result) {
-                            setState(() {
-                              _myClassesFuture = _fetchClasses();
-                            });
-                          }
-                          Navigator.pop(context);
-                        }
-                      },
-                      child: const Text(
-                        "Create",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: Colors.white,
-                        ),
-                      ),
+                              final result = await controller.createClass(model, user!.uid);
+                              if (result) {
+                                setState(() {
+                                  _myClassesFuture = _fetchClasses();
+                                });
+                              }
+                              Navigator.pop(context);
+                            }
+                          },
+                          child: const Text(
+                            "Create",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
+                          ),
+                        );
+                      }
                     ),
                   ],
                 ),

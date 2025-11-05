@@ -6,7 +6,7 @@ class UserModel {
   final String email;
   final String photoUrl;
   final String? fcmToken;
-  final List<String>? joinedClasses;
+  final List<String> joinedClasses;
   final Timestamp? lastLogin;
 
   UserModel({
@@ -15,9 +15,9 @@ class UserModel {
     required this.email,
     required this.photoUrl,
     this.fcmToken,
-    this.joinedClasses,
+    List<String>? joinedClasses,
     this.lastLogin,
-  });
+  }):joinedClasses = joinedClasses??[];
 
 
   factory UserModel.fromFireStore(Map<String, dynamic> data) {

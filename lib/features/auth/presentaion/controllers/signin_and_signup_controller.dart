@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:universityclassroommanagement/app/collections.dart';
@@ -48,8 +49,10 @@ class SigninAndSignupController extends GetxController {
               .doc(user.uid)
               .set(userMap, SetOptions(merge: true));
           LocalDbHelper instance = LocalDbHelper.getInstance();
-          await instance.addUser(model: UserModel.fromFireStore(userMap));
-          AuthController.user = UserModel.fromFireStore(userMap);
+          final userDoc = await FirebaseFirestore.instance.collection(Collectons.users).doc(FirebaseAuth.instance.currentUser!.uid).get();
+          await instance.addUser(model: UserModel.fromFireStore(userDoc.data()!));
+          AuthController.user = UserModel.fromFireStore(userDoc.data()!);
+          debugPrint("Added to Auth controller : ${AuthController.user!.joinedClasses}");
 
         }
 

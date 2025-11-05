@@ -1,31 +1,28 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:universityclassroommanagement/app/collections.dart';
+import 'package:universityclassroommanagement/core/services/auth_controller.dart';
+import 'package:universityclassroommanagement/features/home/data/model/task_model.dart';
+import 'package:universityclassroommanagement/features/profile/data/models/user_model.dart';
+import 'package:universityclassroommanagement/features/shared/presentaion/widgets/ShowSnackBarMessage.dart';
 import 'package:universityclassroommanagement/features/shared/presentaion/widgets/format_Date.dart';
 
 import '../../../../app/app_colors.dart';
 
 class TaskTile extends StatelessWidget {
-  final String title;
-  final String description;
-  final Timestamp deadline;
   final int index;
+  final TaskModel taskModel;
 
-  const TaskTile({
-    super.key,
-    required this.title,
-    required this.description,
-    required this.deadline,
-    required this.index,
-  });
+  TaskTile({super.key, required this.index, required this.taskModel, required this.refresh});
+
+  Function(bool)  refresh;
 
   @override
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
@@ -65,7 +62,7 @@ class TaskTile extends StatelessWidget {
             ),
           ),
           title: Text(
-            title,
+            taskModel.title,
             style: const TextStyle(
               fontWeight: FontWeight.w600,
               fontSize: 16,
@@ -79,7 +76,7 @@ class TaskTile extends StatelessWidget {
             children: [
               const SizedBox(height: 4),
               Text(
-                description,
+                taskModel.description,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
@@ -105,7 +102,7 @@ class TaskTile extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      "Due: ${formatDate(deadline)}",
+                      "Due: ${formatDate(taskModel.deadline)}",
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
@@ -139,7 +136,7 @@ class TaskTile extends StatelessWidget {
 
   Color _getDeadlineColor(BuildContext context) {
     final now = DateTime.now();
-    final deadlineDate = deadline.toDate();
+    final deadlineDate = taskModel.deadline.toDate();
     final difference = deadlineDate.difference(now).inDays;
 
     if (difference < 0) {
@@ -155,7 +152,7 @@ class TaskTile extends StatelessWidget {
 
   Color _getDeadlineIconColor(BuildContext context) {
     final now = DateTime.now();
-    final deadlineDate = deadline.toDate();
+    final deadlineDate = taskModel.deadline.toDate();
     final difference = deadlineDate.difference(now).inDays;
 
     if (difference < 0) {
@@ -173,21 +170,9 @@ class TaskTile extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Container(
-          decoration: BoxDecoration(
-            // gradient: LinearGradient(
-            //   begin: Alignment.topCenter,
-            //   end: Alignment.bottomCenter,
-            //   colors: [
-            //     Colors.white,
-            //     AppColors.themeColor.withOpacity(0.05),
-            //   ],
-            // ),
-            borderRadius: BorderRadius.circular(16),
-          ),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(16)),
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: Column(
@@ -223,7 +208,7 @@ class TaskTile extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        title,
+                        taskModel.title,
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -248,7 +233,7 @@ class TaskTile extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  description,
+                  taskModel.description,
                   style: const TextStyle(
                     fontSize: 16,
                     color: Colors.black87,
@@ -287,7 +272,7 @@ class TaskTile extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              formatDate(deadline),
+                              formatDate(taskModel.deadline),
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -322,8 +307,20 @@ class TaskTile extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {
-                          // Add mark as complete functionality
+                        onPressed: () async {
+                          List<String> completedBy = taskModel.completedBy;
+                          completedBy.add(AuthController.user!.uid);
+                          print("CompletedBy : ${taskModel.completedBy}");
+                          await FirebaseFirestore.instance
+                              .collection(Collectons.classes)
+                              .doc(AuthController.classDocId)
+                              .collection(Collectons.tasks)
+                              .doc(taskModel.id)
+                              .update({
+                            'completedBy':completedBy,
+                          });
+                          ShowSnackBarMessage(context, "${taskModel.title} marked as completed");
+                          refresh(true);
                           Navigator.pop(context);
                         },
                         style: ElevatedButton.styleFrom(

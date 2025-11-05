@@ -6,6 +6,7 @@ import 'package:universityclassroommanagement/core/services/auth_controller.dart
 import 'package:universityclassroommanagement/features/home/data/model/task_model.dart';
 import 'package:universityclassroommanagement/features/home/presentation/controllers/task_controller.dart';
 import 'package:universityclassroommanagement/features/shared/presentaion/widgets/ShowSnackBarMessage.dart';
+import 'package:universityclassroommanagement/features/shared/presentaion/widgets/icon_filled_button.dart';
 
 class AddTaskScreen extends StatefulWidget {
   const AddTaskScreen({super.key});
@@ -118,23 +119,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
             // Submit Button
             GetBuilder<TaskController>(
               builder: (controller) {
-                return SizedBox(
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: submitTask,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue.shade600,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      elevation: 5,
-                    ),
-                    child: const Text(
-                      "Add Task",
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                );
+                return IconFilledButton(
+                  onTap: submitTask,
+                  title: "Add Task",
+                  );
               }
             ),
           ],
