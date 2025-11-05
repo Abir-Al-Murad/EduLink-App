@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:universityclassroommanagement/app/collections.dart';
 import 'package:universityclassroommanagement/core/services/auth_controller.dart';
 import 'package:universityclassroommanagement/features/home/data/model/task_model.dart';
-import 'package:universityclassroommanagement/features/profile/data/models/user_model.dart';
 import 'package:universityclassroommanagement/features/shared/presentaion/widgets/ShowSnackBarMessage.dart';
 import 'package:universityclassroommanagement/features/shared/presentaion/widgets/format_Date.dart';
 
@@ -13,14 +12,14 @@ class TaskTile extends StatelessWidget {
   final int index;
   final TaskModel taskModel;
 
-  TaskTile({super.key, required this.index, required this.taskModel, required this.refresh});
+  const TaskTile({super.key, required this.index, required this.taskModel, required this.refresh});
 
-  Function(bool)  refresh;
+  final Function(bool)  refresh;
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+      margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Container(

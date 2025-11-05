@@ -1,16 +1,10 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:universityclassroommanagement/app/assets_path.dart';
 import 'package:universityclassroommanagement/features/auth/presentaion/controllers/signin_and_signup_controller.dart';
-import 'package:universityclassroommanagement/features/auth/presentaion/screens/signup_screen.dart';
 import 'package:universityclassroommanagement/features/auth/presentaion/widgets/eleveted_button_with_logo.dart';
 import 'package:universityclassroommanagement/features/classroom/presentation/screens/my_classrooms_screen.dart';
 import 'package:universityclassroommanagement/features/shared/presentaion/widgets/ShowSnackBarMessage.dart';
-import 'package:universityclassroommanagement/features/shared/presentaion/widgets/centered_circular_progress.dart';
 
 import '../widgets/hero_logo.dart';
 

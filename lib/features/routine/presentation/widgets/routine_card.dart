@@ -43,7 +43,7 @@ class RoutineCard extends StatelessWidget {
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 6),
           child: Text(
-            "Time: ${item.time ?? ''}\nRoom: ${item.room ?? 'N/A'}\nTeacher: ${item.teacher ?? 'Not Assigned'}",
+            "Time: ${item.time}\nRoom: ${item.room}\nTeacher: ${item.teacher}",
             style: const TextStyle(height: 1.5),
           ),
         ),

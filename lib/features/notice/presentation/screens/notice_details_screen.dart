@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_linkify/flutter_linkify.dart';
-import 'package:universityclassroommanagement/features/home/presentation/widgets/task_tile.dart';
 import 'package:universityclassroommanagement/features/notice/data/models/notice_model.dart';
 import 'package:universityclassroommanagement/features/shared/presentaion/widgets/format_Date.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../widgets/linkify_description.dart';
 

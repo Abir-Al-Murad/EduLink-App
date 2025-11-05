@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:universityclassroommanagement/app/app_colors.dart';
 import 'package:universityclassroommanagement/app/controller_binder.dart';
 import 'package:universityclassroommanagement/app/routes.dart';
-import 'package:universityclassroommanagement/features/shared/presentaion/screens/bottom_nav_holder.dart';
 import 'package:universityclassroommanagement/splash_screen.dart';
 
 class MyApp extends StatefulWidget {

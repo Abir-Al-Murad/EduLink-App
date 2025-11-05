@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 
 class NetworkCaller extends GetxController{
   String? errorMessage;
-  QuerySnapshot? _snapshot ;
   final fireInstance = FirebaseFirestore.instance;
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -13,8 +12,7 @@ class NetworkCaller extends GetxController{
     _isLoading = true;
     update();
     try {
-      final querySnapshot = await fireInstance.collection(collection).get();
-      _snapshot = querySnapshot;
+      await fireInstance.collection(collection).get();
       isSuccess = true;
       _isLoading = false;
     } catch (e) {

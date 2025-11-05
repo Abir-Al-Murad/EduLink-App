@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:ffi';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -106,7 +105,7 @@ class LocalDbHelper {
       final db = await getDB();
 
       // Convert joinedClasses to JSON string
-      String joinedClassesJson = jsonEncode(model.joinedClasses ?? []);
+      String joinedClassesJson = jsonEncode(model.joinedClasses);
 
       // Convert lastLogin Timestamp to milliseconds
       int lastLoginMillis = model.lastLogin?.millisecondsSinceEpoch ?? DateTime.now().millisecondsSinceEpoch;

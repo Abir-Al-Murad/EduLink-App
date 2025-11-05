@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_linkify/flutter_linkify.dart';
-import 'package:intl/intl.dart';
 import 'package:universityclassroommanagement/app/app_colors.dart';
 import 'package:universityclassroommanagement/core/services/auth_controller.dart';
 import 'package:universityclassroommanagement/features/notice/presentation/screens/add_notice_screen.dart';
@@ -9,7 +7,6 @@ import 'package:universityclassroommanagement/features/notice/presentation/scree
 import 'package:universityclassroommanagement/features/notice/presentation/widgets/linkify_description.dart';
 import 'package:universityclassroommanagement/features/shared/presentaion/widgets/format_Date.dart';
 import 'package:universityclassroommanagement/features/shared/presentaion/widgets/icon_filled_button.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../data/models/notice_model.dart';
 import 'package:universityclassroommanagement/app/collections.dart';
 

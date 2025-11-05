@@ -4,7 +4,6 @@ import 'package:universityclassroommanagement/app/collections.dart';
 import 'package:universityclassroommanagement/core/services/auth_controller.dart';
 import 'package:universityclassroommanagement/features/classroom/data/models/class_room_model.dart';
 import 'package:universityclassroommanagement/features/profile/data/models/user_model.dart';
-import 'package:universityclassroommanagement/features/shared/presentaion/utils/check_admin.dart';
 
 class MembersListScreen extends StatefulWidget {
   const MembersListScreen({super.key});
@@ -97,10 +96,10 @@ class _MembersListScreenState extends State<MembersListScreen> {
           }
           return ListTile(
             leading: CircleAvatar(
-              backgroundImage: NetworkImage(user.photoUrl!),
+              backgroundImage: NetworkImage(user.photoUrl),
             ),
-            title: Text(user.name!),
-            subtitle: Text(user.email!),
+            title: Text(user.name),
+            subtitle: Text(user.email),
             trailing: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(

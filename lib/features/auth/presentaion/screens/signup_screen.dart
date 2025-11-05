@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:universityclassroommanagement/features/classroom/presentation/screens/my_classrooms_screen.dart';
-import 'package:universityclassroommanagement/features/home/presentation/screens/home_screen.dart';
-import 'package:universityclassroommanagement/features/shared/presentaion/screens/bottom_nav_holder.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});

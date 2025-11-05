@@ -6,9 +6,7 @@ import 'package:universityclassroommanagement/core/services/auth_controller.dart
 import 'package:universityclassroommanagement/core/services/firebase_messaging.dart';
 import 'package:universityclassroommanagement/core/services/local_db_helper.dart';
 import 'package:universityclassroommanagement/features/auth/presentaion/screens/signin_screen.dart';
-import 'package:universityclassroommanagement/features/auth/presentaion/screens/signup_screen.dart';
 import 'package:universityclassroommanagement/features/classroom/presentation/screens/my_classrooms_screen.dart';
-import 'package:universityclassroommanagement/features/shared/presentaion/screens/bottom_nav_holder.dart';
 
 import 'features/auth/presentaion/widgets/hero_logo.dart';
 

@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:universityclassroommanagement/app/app_colors.dart';
 import 'package:universityclassroommanagement/app/assets_path.dart';
 import 'package:universityclassroommanagement/app/collections.dart';
@@ -65,11 +64,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
           return SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.all(18.0),
+              padding: const EdgeInsets.all(15.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildHeaderContainer(),
+                  _buildHeaderContainer(uncompletedTasks.length,completedTasks.length),
                   const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -102,7 +101,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   SizedBox(height: 10),
                   
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: Container(
                       decoration: BoxDecoration(
                         color: Colors.grey.shade200,
@@ -219,10 +218,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     }
   }
 
-  Widget _buildHeaderContainer() {
+  Widget _buildHeaderContainer(int pendingTask,int completedTask) {
     return Container(
       width: double.infinity,
-      height: 240,
+      height: 190,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -262,12 +261,18 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               child: CircleAvatar(
                 radius: 50,
                 backgroundColor: Colors.white,
-                child: Text(
-                  "7A",
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF1a237e),
+                child: Padding(
+                  padding: const EdgeInsets.all(22.0),
+                  child: Text(
+                    AuthController.currentClassRoom?.name ?? 'EduLink',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1a237e),
+                    ),
                   ),
                 ),
               ),
@@ -278,11 +283,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildUniversityStat(Icons.assignment, "Assignments", "12"),
+                  _buildUniversityStat(Icons.pending_outlined, "Pending Tasks", pendingTask.toString()),
                   SizedBox(height: 16),
-                  _buildUniversityStat(Icons.quiz, "Class Tests", "8"),
-                  SizedBox(height: 16),
-                  _buildUniversityStat(Icons.slideshow, "Presentations", "5"),
+                  _buildUniversityStat(Icons.done_all_outlined, "Completed Tasks", completedTask.toString()),
+                  // SizedBox(height: 16),
+                  // _buildUniversityStat(Icons.slideshow, "Presentations", "5"),
                 ],
               ),
             ),
