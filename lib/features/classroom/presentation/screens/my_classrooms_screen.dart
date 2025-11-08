@@ -8,6 +8,7 @@ import 'package:universityclassroommanagement/features/classroom/data/models/cla
 import 'package:universityclassroommanagement/features/classroom/presentation/controllers/classroom_controller.dart';
 import 'package:universityclassroommanagement/features/classroom/presentation/widgets/class_room_card.dart';
 import 'package:universityclassroommanagement/features/profile/data/models/user_model.dart';
+import 'package:universityclassroommanagement/features/report%20and%20feedback/presentation/screens/report_and_feedback.dart';
 import 'package:universityclassroommanagement/features/shared/presentaion/screens/bottom_nav_holder.dart';
 import 'package:universityclassroommanagement/features/shared/presentaion/utils/check_admin.dart';
 import 'package:universityclassroommanagement/features/shared/presentaion/widgets/ShowSnackBarMessage.dart';
@@ -98,8 +99,10 @@ class _MyClassroomsState extends State<MyClassrooms> {
             ),
             ListTile(
               leading: const Icon(Icons.settings_outlined, color: Colors.black87),
-              title: const Text("Settings"),
-              onTap: () {},
+              title: const Text("Report and feedback"),
+              onTap: () {
+                Navigator.pushNamed(context, ReportAndFeedback.name);
+              },
             ),
             const Divider(),
 
@@ -166,8 +169,8 @@ class _MyClassroomsState extends State<MyClassrooms> {
                     AuthController.isAdmin = await checkAdmin(
                         myClasses[index].id!, user!.uid);
                     AuthController.classDocId = myClasses[index].id;
-                    Navigator.pushNamedAndRemoveUntil(
-                        context, BottomNavHolder.name, (predicate) => false);
+                    Navigator.pushNamed(
+                        context, BottomNavHolder.name);
                   },
                 );
               },

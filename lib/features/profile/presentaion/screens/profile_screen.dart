@@ -197,7 +197,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                     child: const Text(
-                      "Back To Home",
+                      "Back to classrooms",
                       style: TextStyle(color: Colors.white, fontSize: 16),
                     ),
                   ),

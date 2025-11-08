@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:universityclassroommanagement/features/home/data/model/task_model.dart';
 import 'package:universityclassroommanagement/features/profile/data/models/user_model.dart';
 
 import '../../features/classroom/data/models/class_room_model.dart';
@@ -15,7 +16,7 @@ class LocalDbHelper {
   static LocalDbHelper getInstance() {
     return LocalDbHelper._();
   }
-
+  //User Table
   static final String Table_users = 'users';
   static final String COLUMN_UID = 'uid';
   static final String COLUMN_NAME = 'name';
@@ -25,9 +26,8 @@ class LocalDbHelper {
   static final String COLUMN_JOINED_CLASSES = 'joinedClasses';
   static final String COLUMN_LASTLOGIN = 'lastLogin';
 
-
+  //Class Table
   static final String TABLE_CLASSES = 'classes';
-
   static final String COLUMN_CLASS_ID = 'id';
   static final String COLUMN_CLASS_NAME = 'name';
   static final String COLUMN_SUBJECT = 'subject';
@@ -36,6 +36,14 @@ class LocalDbHelper {
   static final String COLUMN_STUDENTS = 'students';
   static final String COLUMN_ADMINS = 'admins';
 
+  //Tasks Table
+  static final String TABLE_TASKS = 'tasks';
+  static final String COLUMN_TASK_ID = 'id';
+  static final String COLUMN_TITLE = 'title';
+  static final String COLUMN_DESCRIPTION = 'description';
+  static final String COLUMN_DEADLINE = 'deadline';
+  static final String COLUMN_COMPLETED_BY = 'completedBy';
+  static final String COLUMN_ASSIGNED_DATE = 'assignedDate';
 
   Database? myDB;
 
@@ -54,7 +62,7 @@ class LocalDbHelper {
 
     return await openDatabase(
       dpPath,
-      version: 2,
+      version: 4,
       onCreate: (db, version) async {
         await db.execute('''
       CREATE TABLE $Table_users(
@@ -79,9 +87,23 @@ class LocalDbHelper {
         $COLUMN_ADMINS TEXT
       )
     ''');
+        await db.execute(
+          '''
+          CREATE TABLE $TABLE_TASKS(
+          $COLUMN_TASK_ID TEXT Primary key,
+          $COLUMN_TITLE TEXT NOT NULL,
+          $COLUMN_DESCRIPTION TEXT,
+          $COLUMN_DEADLINE TEXT,
+          $COLUMN_COMPLETED_BY TEXT,
+          $COLUMN_CLASS_ID TEXT,
+          FOREIGN KEY($COLUMN_CLASS_ID) REFERENCES $TABLE_CLASSES($COLUMN_CLASS_ID)
+          )
+          '''
+        );
+
       },
       onUpgrade: (db, oldVersion, newVersion) async {
-        if (oldVersion < 2) {
+        if (oldVersion < 4) {
           // Create classes table if upgrading from version 1
           await db.execute('''
         CREATE TABLE IF NOT EXISTS $TABLE_CLASSES(
@@ -242,6 +264,33 @@ class LocalDbHelper {
       return [];
     }
   }
+
+  Future<void> clear()async{
+    final db = await getDB();
+    await db.delete(TABLE_TASKS);
+  }
+
+  Future<void> insertTask(TaskModel task,String classId)async{
+    final db = await getDB();
+    await db.insert(TABLE_TASKS, {
+      COLUMN_CLASS_ID:classId,
+      COLUMN_TITLE :task.title,
+      COLUMN_TASK_ID:task.id,
+      COLUMN_DESCRIPTION:task.description,
+      COLUMN_DEADLINE:task.deadline.toString(),
+      COLUMN_ASSIGNED_DATE:task.assignedDate.toString(),
+    },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<List<TaskModel>> getAllTasks()async{
+    final db = await getDB();
+    final result = await db.query(TABLE_TASKS);
+    return result.map((e)=>TaskModel.fromMap(e)).toList();
+  }
+
+
 
 
 }

@@ -8,6 +8,7 @@ import 'package:universityclassroommanagement/features/notice/data/models/notice
 import 'package:universityclassroommanagement/features/notice/presentation/screens/add_notice_screen.dart';
 import 'package:universityclassroommanagement/features/notice/presentation/screens/notice_details_screen.dart';
 import 'package:universityclassroommanagement/features/profile/presentaion/screens/members_list_screen.dart';
+import 'package:universityclassroommanagement/features/report%20and%20feedback/presentation/screens/report_and_feedback.dart';
 import 'package:universityclassroommanagement/features/routine/presentation/screens/add_routine_screen.dart';
 import 'package:universityclassroommanagement/features/shared/presentaion/screens/bottom_nav_holder.dart';
 
@@ -17,6 +18,8 @@ MaterialPageRoute onGenerateRoute(RouteSettings settings){
     screen = AddTaskScreen();
   }else if(settings.name == AddNotice.name){
     screen = AddNotice();
+  }else if(settings.name == ReportAndFeedback.name){
+    screen = ReportAndFeedback();
   }else if(settings.name == MembersListScreen.name){
     screen = MembersListScreen();
   }else if(settings.name == SigninScreen.name){
