@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -27,23 +30,59 @@ class MyClassrooms extends StatefulWidget {
 
 class _MyClassroomsState extends State<MyClassrooms> {
   final user = FirebaseAuth.instance.currentUser;
-  final ClassRoomController _classRoomController = Get.find<ClassRoomController>();
+  final ClassRoomController _classRoomController =
+      Get.find<ClassRoomController>();
+  StreamSubscription<List<ConnectivityResult>>? subscription;
+  bool isOffline = false;
 
-  late Future<List<ClassRoomModel>> _myClassesFuture;
+  late Future<List<ClassRoomModel>> _myClassesFuture = Future.value([]);
 
-  UserModel userModel = AuthController.user ?? UserModel(uid: "", name: "", email: "", photoUrl: "");
+  UserModel userModel =
+      AuthController.user ??
+      UserModel(uid: "", name: "", email: "", photoUrl: "");
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      _initConnectivity();
+    });
+  }
+
+  Future<void> _initConnectivity() async {
+
+    final connectivityResult = await Connectivity().checkConnectivity();
+    setState(() {
+      isOffline = connectivityResult.contains(ConnectivityResult.none);
+    });
+    debugPrint(isOffline?"You are offline Now":'You are online now');
     _myClassesFuture = _fetchClasses();
+
+    //this will listen for future changes
+    subscription = Connectivity().onConnectivityChanged.listen((
+      List<ConnectivityResult> result,
+    ) {
+      final wasOffline = isOffline;
+      final nowOffline = result.contains(ConnectivityResult.none);
+      debugPrint(nowOffline ? "You are offline now" : "You are online now");
+      if(wasOffline != nowOffline){
+        setState(() {
+          isOffline = nowOffline;
+          _myClassesFuture = _fetchClasses();
+        });
+      }
+    });
   }
 
   Future<List<ClassRoomModel>> _fetchClasses() async {
-    if (user != null) {
+    if (user != null && isOffline == false) {
       print(user!.uid);
       await _classRoomController.getMyClasses(user!.uid);
+
       return _classRoomController.myClassList;
+    } else if (isOffline == true) {
+      LocalDbHelper dbHelper = LocalDbHelper.getInstance();
+      return await dbHelper.getAllClasses();
     }
     return [];
   }
@@ -98,7 +137,10 @@ class _MyClassroomsState extends State<MyClassrooms> {
               onTap: () {},
             ),
             ListTile(
-              leading: const Icon(Icons.settings_outlined, color: Colors.black87),
+              leading: const Icon(
+                Icons.settings_outlined,
+                color: Colors.black87,
+              ),
               title: const Text("Report and feedback"),
               onTap: () {
                 Navigator.pushNamed(context, ReportAndFeedback.name);
@@ -110,13 +152,17 @@ class _MyClassroomsState extends State<MyClassrooms> {
             ListTile(
               leading: const Icon(Icons.logout, color: Colors.redAccent),
               title: const Text("Logout"),
-              onTap:  () async {
+              onTap: () async {
                 print(AuthController.user);
                 await FirebaseAuth.instance.signOut();
                 AuthController.user = null;
                 AuthController.classDocId = null;
                 AuthController.isAdmin = false;
-                Navigator.pushNamedAndRemoveUntil(context, SigninScreen.name, (predicate)=>false);
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  SigninScreen.name,
+                  (predicate) => false,
+                );
                 if (context.mounted) {
                   Navigator.of(context).pushReplacementNamed(SigninScreen.name);
                 }
@@ -163,14 +209,13 @@ class _MyClassroomsState extends State<MyClassrooms> {
                 return ClassroomCard(
                   classroom: myClasses[index],
                   onTap: () async {
-                    LocalDbHelper db =  LocalDbHelper.getInstance();
-                    db.addClassRoom(model: myClasses[index]);
                     AuthController.currentClassRoom = myClasses[index];
                     AuthController.isAdmin = await checkAdmin(
-                        myClasses[index].id!, user!.uid);
+                      myClasses[index].id!,
+                      user!.uid,
+                    );
                     AuthController.classDocId = myClasses[index].id;
-                    Navigator.pushNamed(
-                        context, BottomNavHolder.name);
+                    Navigator.pushNamed(context, BottomNavHolder.name);
                   },
                 );
               },
@@ -184,22 +229,26 @@ class _MyClassroomsState extends State<MyClassrooms> {
           children: [
             Expanded(
               child: ElevatedButton.icon(
-                onPressed: ()async{
-                 await joinClassDialog();
-                 setState(() {
-
-                 });
+                onPressed: () async {
+                  await joinClassDialog();
+                  setState(() {});
                 },
-                icon: const Icon(Icons.group_add,color: Colors.white,),
-                label: const Text("Join a Class",style: TextStyle(color: Colors.white),),
+                icon: const Icon(Icons.group_add, color: Colors.white),
+                label: const Text(
+                  "Join a Class",
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ),
             const SizedBox(width: 10),
             Expanded(
               child: ElevatedButton.icon(
                 onPressed: createClassDialog,
-                icon: const Icon(Icons.add_circle,color: Colors.white,),
-                label: const Text("Create a Class",style: TextStyle(color: Colors.white),),
+                icon: const Icon(Icons.add_circle, color: Colors.white),
+                label: const Text(
+                  "Create a Class",
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ),
           ],
@@ -242,7 +291,10 @@ class _MyClassroomsState extends State<MyClassrooms> {
                   controller: codeController,
                   decoration: InputDecoration(
                     labelText: "Enter class code",
-                    prefixIcon: Icon(Icons.key_rounded, color: AppColors.mediumThemeColor),
+                    prefixIcon: Icon(
+                      Icons.key_rounded,
+                      color: AppColors.mediumThemeColor,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 25),
@@ -264,45 +316,59 @@ class _MyClassroomsState extends State<MyClassrooms> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.themeColor,
                           ),
-                          onPressed: controller.isLoading ? null : () async {
-                            final code = codeController.text.trim();
-                            if (code.isEmpty) {
-                              ShowSnackBarMessage(context, "Please Enter Class Code");
-                              return;
-                            }
+                          onPressed: controller.isLoading
+                              ? null
+                              : () async {
+                                  final code = codeController.text.trim();
+                                  if (code.isEmpty) {
+                                    ShowSnackBarMessage(
+                                      context,
+                                      "Please Enter Class Code",
+                                    );
+                                    return;
+                                  }
 
-                            bool result = await controller.joinClass(code, user!.uid);
+                                  bool result = await controller.joinClass(
+                                    code,
+                                    user!.uid,
+                                  );
 
-                            if (result) {
-                              setState(() {
-                                _myClassesFuture = _fetchClasses();
-                              });
-                              ShowSnackBarMessage(context, "Joined Successfully");
-                              Navigator.pop(context);
-                            } else {
-                              print('Here');
-                              Navigator.pop(context);
-                              ShowSnackBarMessage(context, controller.errorMessage ?? "Failed to join class");
-                            }
-
-                          },
+                                  if (result) {
+                                    setState(() {
+                                      _myClassesFuture = _fetchClasses();
+                                    });
+                                    ShowSnackBarMessage(
+                                      context,
+                                      "Joined Successfully",
+                                    );
+                                    Navigator.pop(context);
+                                  } else {
+                                    print('Here');
+                                    Navigator.pop(context);
+                                    ShowSnackBarMessage(
+                                      context,
+                                      controller.errorMessage ??
+                                          "Failed to join class",
+                                    );
+                                  }
+                                },
                           child: controller.isLoading
                               ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            ),
-                          )
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
                               : const Text(
-                            "Join",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: Colors.white,
-                            ),
-                          ),
+                                  "Join",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    color: Colors.white,
+                                  ),
+                                ),
                         );
                       },
                     ),
@@ -315,7 +381,6 @@ class _MyClassroomsState extends State<MyClassrooms> {
       },
     );
   }
-
 
   Future<void> createClassDialog() async {
     final nameController = TextEditingController();
@@ -352,7 +417,10 @@ class _MyClassroomsState extends State<MyClassrooms> {
                   controller: nameController,
                   decoration: InputDecoration(
                     labelText: "Class name",
-                    prefixIcon: Icon(Icons.class_, color: AppColors.mediumThemeColor),
+                    prefixIcon: Icon(
+                      Icons.class_,
+                      color: AppColors.mediumThemeColor,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 15),
@@ -362,7 +430,10 @@ class _MyClassroomsState extends State<MyClassrooms> {
                   controller: subjectController,
                   decoration: InputDecoration(
                     labelText: "Subject",
-                    prefixIcon: Icon(Icons.book_rounded, color: AppColors.mediumThemeColor),
+                    prefixIcon: Icon(
+                      Icons.book_rounded,
+                      color: AppColors.mediumThemeColor,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 25),
@@ -383,54 +454,61 @@ class _MyClassroomsState extends State<MyClassrooms> {
                         print("Loading: ${controller.isLoading}");
                         return controller.isLoading
                             ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            color: AppColors.themeColor,
-                            strokeWidth: 2,
-                          ),
-                        ):ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.themeColor,
-                          ),
-                          onPressed: () async {
-                            final name = nameController.text.trim();
-                            final subject = subjectController.text.trim();
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  color: AppColors.themeColor,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.themeColor,
+                                ),
+                                onPressed: () async {
+                                  final name = nameController.text.trim();
+                                  final subject = subjectController.text.trim();
 
-                            if (name.isEmpty || subject.isEmpty) {
-                              ShowSnackBarMessage(context, "Please fill all fields");
-                              return;
-                            }
+                                  if (name.isEmpty || subject.isEmpty) {
+                                    ShowSnackBarMessage(
+                                      context,
+                                      "Please fill all fields",
+                                    );
+                                    return;
+                                  }
 
-                            if (user != null) {
-                              ClassRoomModel model = ClassRoomModel(
-                                name: name,
-                                subject: subject,
-                                createdBy: user!.uid,
-                                createdAt: Timestamp.now(),
-                                students: [user!.uid],
-                                admins: [user!.uid],
+                                  if (user != null) {
+                                    ClassRoomModel model = ClassRoomModel(
+                                      name: name,
+                                      subject: subject,
+                                      createdBy: user!.uid,
+                                      createdAt: Timestamp.now(),
+                                      students: [user!.uid],
+                                      admins: [user!.uid],
+                                    );
+
+                                    final result = await controller.createClass(
+                                      model,
+                                      user!.uid,
+                                    );
+                                    if (result) {
+                                      setState(() {
+                                        _myClassesFuture = _fetchClasses();
+                                      });
+                                    }
+                                    Navigator.pop(context);
+                                  }
+                                },
+                                child: const Text(
+                                  "Create",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    color: Colors.white,
+                                  ),
+                                ),
                               );
-
-                              final result = await controller.createClass(model, user!.uid);
-                              if (result) {
-                                setState(() {
-                                  _myClassesFuture = _fetchClasses();
-                                });
-                              }
-                              Navigator.pop(context);
-                            }
-                          },
-                          child: const Text(
-                            "Create",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: Colors.white,
-                            ),
-                          ),
-                        );
-                      }
+                      },
                     ),
                   ],
                 ),
@@ -441,6 +519,4 @@ class _MyClassroomsState extends State<MyClassrooms> {
       },
     );
   }
-
-
 }

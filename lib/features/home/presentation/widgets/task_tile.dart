@@ -20,7 +20,7 @@ class TaskTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-      elevation: 2,
+      elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Container(
         decoration: BoxDecoration(
@@ -155,13 +155,13 @@ class TaskTile extends StatelessWidget {
     final difference = deadlineDate.difference(now).inDays;
 
     if (difference < 0) {
-      return Colors.red.shade600; // Overdue
+      return Colors.red.shade600;
     } else if (difference == 0) {
-      return Colors.orange.shade600; // Due today
+      return Colors.orange.shade600;
     } else if (difference <= 2) {
-      return Colors.orange.shade400; // Due soon
+      return Colors.orange.shade400;
     } else {
-      return Colors.green.shade600; // Plenty of time
+      return Colors.green.shade600;
     }
   }
 

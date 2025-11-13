@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:universityclassroommanagement/core/services/local_db_helper.dart';
 
 class TaskModel {
@@ -58,15 +59,38 @@ class TaskModel {
   }
 
   factory TaskModel.fromMap(Map<String, dynamic> jsonData) {
-    return TaskModel(
-      id: jsonData[LocalDbHelper.COLUMN_TASK_ID] as String,
-      title: jsonData[LocalDbHelper.COLUMN_TITLE] as String,
-      description: jsonData[LocalDbHelper.COLUMN_DESCRIPTION] as String,
-      deadline: Timestamp.fromMillisecondsSinceEpoch(jsonData[LocalDbHelper.COLUMN_DEADLINE] as int),
-      assignedDate: Timestamp.fromMillisecondsSinceEpoch(jsonData[LocalDbHelper.COLUMN_ASSIGNED_DATE] as int),
-      completedBy: jsonData[LocalDbHelper.COLUMN_COMPLETED_BY] != null
-          ? List<String>.from(jsonDecode(jsonData[LocalDbHelper.COLUMN_COMPLETED_BY] as String))
-          : [],
-    );
+    try {
+      int parseTimestamp(dynamic value) {
+        if (value == null) return DateTime.now().millisecondsSinceEpoch;
+        if (value is int) return value;
+        if (value is String) return int.parse(value);
+        return DateTime.now().millisecondsSinceEpoch;
+      }
+
+      return TaskModel(
+        id: jsonData[LocalDbHelper.COLUMN_TASK_ID] as String,
+        title: jsonData[LocalDbHelper.COLUMN_TITLE] as String,
+        description: jsonData[LocalDbHelper.COLUMN_DESCRIPTION] as String? ?? '',
+
+        // ✅ Parse string to int first
+        deadline: Timestamp.fromMillisecondsSinceEpoch(
+            parseTimestamp(jsonData[LocalDbHelper.COLUMN_DEADLINE])),
+
+        assignedDate: jsonData[LocalDbHelper.COLUMN_ASSIGNED_DATE] != null
+            ? Timestamp.fromMillisecondsSinceEpoch(
+            parseTimestamp(jsonData[LocalDbHelper.COLUMN_ASSIGNED_DATE]))
+            : null,
+
+        // ✅ Handle completedBy - it's already a JSON string
+        completedBy: jsonData[LocalDbHelper.COLUMN_COMPLETED_BY] != null &&
+            (jsonData[LocalDbHelper.COLUMN_COMPLETED_BY] as String).isNotEmpty
+            ? List<String>.from(jsonDecode(jsonData[LocalDbHelper.COLUMN_COMPLETED_BY] as String))
+            : [],
+      );
+    } catch (e) {
+      debugPrint("❌ Error parsing TaskModel from map: $e");
+      debugPrint("Data: $jsonData");
+      rethrow;
+    }
   }
 }

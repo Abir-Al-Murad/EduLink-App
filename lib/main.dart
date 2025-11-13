@@ -4,6 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
 import 'package:timezone/data/latest.dart';
+import 'package:universityclassroommanagement/core/services/connectivity_service.dart';
 
 import 'package:universityclassroommanagement/core/services/notification_sevice.dart';
 import 'package:universityclassroommanagement/firebase_options.dart';
@@ -15,8 +16,7 @@ void main() async{
   initializeTimeZones();
   final notificationService = NotificationService();
   await notificationService.initNotification();
-
-
+  await ConnectivityService().initialize();
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform

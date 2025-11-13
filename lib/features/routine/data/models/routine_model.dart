@@ -13,7 +13,7 @@ class RoutineModel {
 
   Map<String, dynamic> toFireStore() {
     return {
-      'subject': course,
+      'course': course,
       'teacher': teacher,
       'room': room,
       'time': time,

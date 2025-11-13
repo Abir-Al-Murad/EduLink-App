@@ -1,14 +1,19 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:universityclassroommanagement/app/app_colors.dart';
 import 'package:universityclassroommanagement/app/assets_path.dart';
 import 'package:universityclassroommanagement/app/collections.dart';
 import 'package:universityclassroommanagement/core/services/auth_controller.dart';
+import 'package:universityclassroommanagement/core/services/connectivity_service.dart';
+import 'package:universityclassroommanagement/core/services/local_db_helper.dart';
 import 'package:universityclassroommanagement/features/home/data/model/task_model.dart';
 import 'package:universityclassroommanagement/features/home/presentation/screens/add_task_screen.dart';
-import 'package:universityclassroommanagement/features/home/presentation/widgets/task_tile.dart';
-import 'package:universityclassroommanagement/features/shared/presentaion/widgets/show_dialog.dart';
+import 'package:universityclassroommanagement/features/home/presentation/widgets/task_selector.dart';
+import 'package:universityclassroommanagement/features/home/presentation/widgets/task_view.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,8 +23,55 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
-  int _selectedIndex = 0; // 0 for uncompleted, 1 for completed
+class _HomeScreenState extends State<HomeScreen>{
+
+  final ValueNotifier<int> selectedIndex = ValueNotifier(0);
+  late Future<List<TaskModel>> _allTasks = Future.value([]);
+  final _connectivity = ConnectivityService();
+
+
+
+  @override
+  void initState() {
+    _allTasks = _fetchData();
+      _connectivity.isOffline.addListener((){
+
+        if(!mounted) return;
+        setState(() {
+          _allTasks = _fetchData();
+        });
+      });
+    super.initState();
+  }
+
+
+
+  Future<List<TaskModel>> _fetchData()async{
+    try{
+      if(_connectivity.isOffline.value){
+        List<TaskModel> allTasks = await LocalDbHelper.getInstance().getAllTasks(AuthController.classDocId!);
+        print(allTasks);
+        return allTasks;
+      }else{
+       final querySnapshot = await FirebaseFirestore.instance
+            .collection(Collectons.classes)
+            .doc(AuthController.classDocId)
+            .collection(Collectons.tasks)
+            .orderBy('assignedDate', descending: true)
+            .get();
+       final documentSnapshot = querySnapshot.docs;
+       List<TaskModel> allTasks = documentSnapshot.map((e){
+         return TaskModel.fromFireStore(e.data(), e.id);
+       }).toList();
+       await _cacheTasks(allTasks);
+       return allTasks;
+      }
+
+    }catch(e){
+      debugPrint("❌ Error fetching tasks: $e");
+      return [];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,13 +82,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         title: Image.asset(AssetsPath.eduLinkNavLogo, height: 230),
         centerTitle: true,
       ),
-      body: FutureBuilder<QuerySnapshot>(
-        future: FirebaseFirestore.instance
-            .collection(Collectons.classes)
-            .doc(AuthController.classDocId)
-            .collection(Collectons.tasks)
-            .orderBy('assignedDate', descending: true)
-            .get(),
+      body: FutureBuilder<List<TaskModel>>(
+        future: _allTasks,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
@@ -48,12 +95,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             return Center(child: Text("No Data Found"));
           }
 
-          final docs = snapshot.data!.docs;
+          List<TaskModel> allTasks = snapshot.data!;
+
+
           final userId = FirebaseAuth.instance.currentUser!.uid;
-          final allTasks = docs
-              .map((doc) => TaskModel.fromFireStore(
-              doc.data() as Map<String, dynamic>, doc.id))
-              .toList();
+
+
           final completedTasks = allTasks
               .where((task) => task.completedBy.contains(userId))
               .toList();
@@ -61,6 +108,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           final uncompletedTasks = allTasks
               .where((task) => !task.completedBy.contains(userId))
               .toList();
+
+
 
           return SingleChildScrollView(
             child: Padding(
@@ -102,81 +151,24 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _selectedIndex = 0;
-                                });
-                              },
-                              child: Container(
-                                padding: EdgeInsets.symmetric(vertical: 12),
-                                decoration: BoxDecoration(
-                                  color: _selectedIndex == 0
-                                      ? AppColors.royalThemeColor
-                                      : Colors.transparent,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Text(
-                                  'Uncompleted',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: _selectedIndex == 0
-                                        ? Colors.white
-                                        : Colors.black87,
-                                    fontWeight: _selectedIndex == 0
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _selectedIndex = 1;
-                                });
-                              },
-                              child: Container(
-                                padding: EdgeInsets.symmetric(vertical: 12),
-                                decoration: BoxDecoration(
-                                  color: _selectedIndex == 1
-                                      ? AppColors.royalThemeColor
-                                      : Colors.transparent,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Text(
-                                  'Completed',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: _selectedIndex == 1
-                                        ? Colors.white
-                                        : Colors.black87,
-                                    fontWeight: _selectedIndex == 1
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    child: TaskSelector(onSelect: (value){
+                      selectedIndex.value = value;
+                      print(selectedIndex.value);
+                    }),
                   ),
                   SizedBox(height: 10),
-                  _selectedIndex == 0
-                      ? taskListView(uncompletedTasks)
-                      : taskListView(completedTasks),
+
+                   ValueListenableBuilder(valueListenable: selectedIndex, builder: (context,index,_){
+                     return TaskView(listOfData: index == 0?uncompletedTasks:completedTasks, refresh: (bool refresh) {
+
+                       if(refresh == true){
+                         setState(() {
+
+                         });
+                       }
+                     },);
+
+                   }),
                 ],
               ),
             ),
@@ -186,30 +178,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
-  Widget taskListView(List<TaskModel> listOfData) {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      itemCount: listOfData.length,
-      itemBuilder: (context, index) {
-        final item = listOfData[index];
-        return GestureDetector(
-          onLongPress: () {
-            buildShowDialog(context, item);
-          },
-          child: TaskTile(
-            index: index,
-            taskModel: item,
-            refresh: (value) {
-              if (value == true) {
-                setState(() {});
-              }
-            },
-          ),
-        );
-      },
-    );
+  Future<void> _cacheTasks(List<TaskModel> tasks) async {
+    final dbHelper = LocalDbHelper.getInstance();
+    for (var task in tasks) {
+      print('From CacheTask - ${task.id}');
+      await dbHelper.insertTask(task, AuthController.classDocId!);
+    }
   }
+
 
   Future<void> onTapAddToTask() async {
     final result = await Navigator.pushNamed(context, AddTaskScreen.name);

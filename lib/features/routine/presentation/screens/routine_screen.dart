@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:universityclassroommanagement/app/collections.dart';
 import 'package:universityclassroommanagement/core/services/auth_controller.dart';
+import 'package:universityclassroommanagement/core/services/connectivity_service.dart';
+import 'package:universityclassroommanagement/core/services/local_db_helper.dart';
 import 'package:universityclassroommanagement/features/routine/data/models/routine_model.dart';
 import 'package:universityclassroommanagement/features/routine/presentation/screens/add_routine_screen.dart';
 import 'package:universityclassroommanagement/features/shared/presentaion/widgets/icon_filled_button.dart';
@@ -19,7 +21,9 @@ class RoutineScreen extends StatefulWidget {
 class _RoutineScreenState extends State<RoutineScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  LocalDbHelper dbHelper = LocalDbHelper();
 
+  final _connectivity = ConnectivityService();
   final List<String> days = [
     "Saturday",
     "Sunday",
@@ -30,27 +34,73 @@ class _RoutineScreenState extends State<RoutineScreen>
     "Friday"
   ];
 
-
+  // Store futures for each day
+  Map<String, Future<List<RoutineModel>>> _routineFutures = {};
   late String today;
+
   @override
   void initState() {
+    super.initState();
     final DateTime now = DateTime.now();
     today = DateFormat('EEEE').format(now);
-    _tabController = TabController(length: days.length, vsync: this,initialIndex: days.indexOf(today));
-    super.initState();
+    _tabController = TabController(
+      length: days.length,
+      vsync: this,
+      initialIndex: days.indexOf(today),
+    );
+
+    // Initialize futures for all days
+    _loadAllRoutines();
+
+    // Listen to connectivity changes
+    _connectivity.isOffline.addListener(() {
+      _loadAllRoutines();
+    });
+  }
+
+  void _loadAllRoutines() {
+    setState(() {
+      _routineFutures = {
+        for (var day in days) day: fetchRoutine(day)
+      };
+    });
   }
 
   Future<List<RoutineModel>> fetchRoutine(String day) async {
-    final snapshot = await FirebaseFirestore.instance
-        .collection(Collectons.classes).doc(AuthController.classDocId).collection(Collectons.routine)
-        .doc(day)
-        .collection(Collectons.dayRoutine)
-        .orderBy('time', descending: false)
-        .get();
+    try {
+      if (_connectivity.isOffline.value == false) {
+        debugPrint("📡 Fetching routine for $day from Firestore...");
 
-    return snapshot.docs
-        .map((doc) => RoutineModel.fromFireStore(doc.data()))
-        .toList();
+        final snapshot = await FirebaseFirestore.instance
+            .collection(Collectons.classes)
+            .doc(AuthController.classDocId)
+            .collection(Collectons.routine)
+            .doc(day)
+            .collection(Collectons.dayRoutine)
+            .orderBy('time', descending: false)
+            .get();
+
+        debugPrint("✅ Fetched ${snapshot.docs.length} routines for $day");
+
+        // Insert into local DB
+        for (var doc in snapshot.docs) {
+          final routine = RoutineModel.fromFireStore(doc.data());
+          await dbHelper.insertRoutine(routine, AuthController.classDocId!,day);
+        }
+
+        return snapshot.docs
+            .map((doc) => RoutineModel.fromFireStore(doc.data()))
+            .toList();
+      } else {
+        debugPrint("📴 Fetching routine for $day from Local DB...");
+        final routines = await dbHelper.getRoutine(AuthController.classDocId!, day);
+        debugPrint("✅ Fetched ${routines.length} routines from local DB for $day");
+        return routines;
+      }
+    } catch (e) {
+      debugPrint("❌ Error fetching routine for $day: $e");
+      return [];
+    }
   }
 
   @override
@@ -76,70 +126,83 @@ class _RoutineScreenState extends State<RoutineScreen>
                   children: [
                     Expanded(
                       child: FutureBuilder<List<RoutineModel>>(
-                        future: fetchRoutine(day),
+                        future: _routineFutures[day], // Use stored future
                         builder: (context, snapshot) {
                           if (snapshot.connectionState == ConnectionState.waiting) {
                             return const Center(child: CircularProgressIndicator());
                           }
 
                           if (snapshot.hasError) {
-                            return Center(child: Text("Error loading $day routine"));
+                            return Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text("Error loading $day routine"),
+                                  Text("${snapshot.error}", style: TextStyle(fontSize: 12)),
+                                ],
+                              ),
+                            );
                           }
 
                           if (!snapshot.hasData || snapshot.data!.isEmpty) {
                             return Center(
-                                child: Text(
-                                  "No classes found for $day",
-                                  style: TextStyle(color: Colors.grey.shade600),
-                                ));
+                              child: Text(
+                                "No classes found for $day",
+                                style: TextStyle(color: Colors.grey.shade600),
+                              ),
+                            );
                           }
 
                           final classes = snapshot.data!;
-                          return Column(
-                            children: [
-                              SingleChildScrollView(
-                                padding: const EdgeInsets.all(12),
-                                child: Column(
-                                  children: [
-                                    ListView.builder(
-                                      physics: const NeverScrollableScrollPhysics(),
-                                      shrinkWrap: true,
-                                      itemCount: classes.length,
-                                      itemBuilder: (context, index) {
-                                        final item = classes[index];
-                                        return RoutineCard(item: item,index:index);
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                            ],
+                          return SingleChildScrollView(
+                            padding: const EdgeInsets.all(12),
+                            child: ListView.builder(
+                              physics: const NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemCount: classes.length,
+                              itemBuilder: (context, index) {
+                                final item = classes[index];
+                                return RoutineCard(item: item, index: index);
+                              },
+                            ),
                           );
                         },
                       ),
                     ),
-
                   ],
                 );
               }).toList(),
             ),
           ),
-          if(AuthController.isAdmin)
+          if (AuthController.isAdmin)
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: IconFilledButton(onTap: onTapAddRoutine, title: "Add Routine"),
+              child: IconFilledButton(
+                onTap: onTapAddRoutine,
+                title: "Add Routine",
+              ),
             )
         ],
       ),
     );
   }
 
-  Future<void>onTapAddRoutine()async{
-    final result = await Navigator.pushNamed(context, AddRoutineScreen.name,arguments: days[_tabController.index]);
-            if(result == true){
-              setState(() {});
-            }
+  Future<void> onTapAddRoutine() async {
+    final result = await Navigator.pushNamed(
+      context,
+      AddRoutineScreen.name,
+      arguments: days[_tabController.index],
+    );
+    if (result == true) {
+      // Reload all routines when new one is added
+      _loadAllRoutines();
+    }
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _connectivity.isOffline.removeListener(() {});
+    super.dispose();
   }
 }
-

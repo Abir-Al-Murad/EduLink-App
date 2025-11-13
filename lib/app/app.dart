@@ -16,6 +16,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
       initialBinding: ControllerBinding(),
       onGenerateRoute: onGenerateRoute,
       theme: ThemeData(

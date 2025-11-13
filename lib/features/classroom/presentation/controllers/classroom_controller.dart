@@ -6,6 +6,8 @@ import 'package:universityclassroommanagement/core/services/auth_controller.dart
 import 'package:universityclassroommanagement/features/classroom/data/models/class_room_model.dart';
 import 'package:universityclassroommanagement/features/profile/data/models/user_model.dart';
 
+import '../../../../core/services/local_db_helper.dart';
+
 class ClassRoomController extends GetxController {
   UserModel? _currentUser;
   UserModel? get currentUser => _currentUser;
@@ -37,7 +39,6 @@ class ClassRoomController extends GetxController {
       }
       final modelUser = UserModel.fromFireStore(userDoc.data()!);
       AuthController.user = modelUser;
-      print(modelUser);
       _currentUser = modelUser;
       print(modelUser.joinedClasses);
       final joinedClassesDocIds = modelUser.joinedClasses;
@@ -55,6 +56,8 @@ class ClassRoomController extends GetxController {
           classSnapshot.docs.map((e) => ClassRoomModel.fromFireStore(e.data(),e.id)),
         );
         debugPrint("Your joined class list:$classList");
+        LocalDbHelper dbHelper = LocalDbHelper.getInstance();
+        await Future.wait(classList.map((c)=>dbHelper.addClassRoom(model: c)));
         _myClassList = classList;
       }
       _isLoading =false;
