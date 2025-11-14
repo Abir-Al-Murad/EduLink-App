@@ -1,10 +1,8 @@
 import 'dart:async';
-
+import 'package:EduLink/core/services/notification_sevice.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
 import '../../../../app/app_colors.dart';
 import '../../../../app/assets_path.dart';
 import '../../../../app/collections.dart';
@@ -16,15 +14,15 @@ import '../widgets/task_selector.dart';
 import '../widgets/task_view.dart';
 import 'add_task_screen.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
-  static const name = '/home-screen';
+class TaskScreen extends StatefulWidget {
+  const TaskScreen({super.key});
+  static const name = '/task-screen';
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<TaskScreen> createState() => _TaskScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen>{
+class _TaskScreenState extends State<TaskScreen>{
 
   final ValueNotifier<int> selectedIndex = ValueNotifier(0);
   late Future<List<TaskModel>> _allTasks = Future.value([]);
@@ -35,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen>{
 
   @override
   void initState() {
+
     _allTasks = _fetchData();
     _connectivityListener = () {
       if (!mounted) return;
@@ -74,6 +73,26 @@ class _HomeScreenState extends State<HomeScreen>{
       return [];
     }
   }
+
+  Future<void> _scheduleNotificationsForTasks(List<TaskModel>tasks)async{
+    try{
+      final currentUserId = FirebaseAuth.instance.currentUser!.uid;
+      final unCompletedTasks = tasks.where((task){
+        return !task.completedBy.contains(currentUserId) && task.deadline.toDate().isAfter(DateTime.now());
+      }).toList();
+      NotificationService _notificationService = NotificationService();
+      _notificationService.cancelAllNotifications();
+      for(TaskModel task in unCompletedTasks){
+        await _notificationService.scheduleTaskDeadlineNotification(taskId: task.id!, title: task.title, body: task.description, deadline: task.deadline);
+      }
+      debugPrint(
+          "✅ Scheduled notifications for ${unCompletedTasks.length} tasks");
+    }catch(e){
+      debugPrint("❌ Error scheduling task notifications: $e");
+    }
+  }
+
+
   @override
   void dispose() {
     _connectivity.isOffline.removeListener(_connectivityListener);
@@ -191,13 +210,20 @@ class _HomeScreenState extends State<HomeScreen>{
       print('From CacheTask - ${task.id}');
       await dbHelper.insertTask(task, AuthController.classDocId!);
     }
+
+    if (!_connectivity.isOffline.value) {
+      await _scheduleNotificationsForTasks(tasks);
+    }
+
   }
 
 
   Future<void> onTapAddToTask() async {
     final result = await Navigator.pushNamed(context, AddTaskScreen.name);
     if (result == true) {
-      setState(() {});
+      setState(() {
+        _allTasks = _fetchData();
+      });
     }
   }
 

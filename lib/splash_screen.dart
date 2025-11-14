@@ -1,5 +1,6 @@
 import 'package:EduLink/app/collections.dart';
 import 'package:EduLink/core/services/connectivity_service.dart';
+import 'package:EduLink/core/services/notification_sevice.dart';
 import 'package:EduLink/features/profile/data/models/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -24,6 +25,9 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> moveToNext()async{
+
+    NotificationService _notificationService = NotificationService();
+    _notificationService.getPendingNotifications();
     FirebaseMessagingService service = FirebaseMessagingService();
     final NotificationSettings settings = await service.settings();
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
@@ -45,7 +49,7 @@ class _SplashScreenState extends State<SplashScreen> {
         final user = FirebaseAuth.instance.currentUser;
 
         if(user !=null){
-          final currentUser = await FirebaseFirestore.instance.collection(Collectons.users).doc(user!.uid).get();
+          final currentUser = await FirebaseFirestore.instance.collection(Collectons.users).doc(user.uid).get();
            UserModel userModel = UserModel.fromFireStore(currentUser.data()!);
           await Get.find<AuthController>().saveUserData(userModel);
           Navigator.pushNamedAndRemoveUntil(context, MyClassrooms.name, (predicate)=>false);

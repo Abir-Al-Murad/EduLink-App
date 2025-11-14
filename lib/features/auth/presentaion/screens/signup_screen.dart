@@ -47,7 +47,7 @@ class _SignupScreenState extends State<SignupScreen> {
           const SnackBar(content: Text("Signed in with Google!")),
         );
 
-        // Navigate to home page
+        // Navigate to task page
         Navigator.pushNamedAndRemoveUntil(context, MyClassrooms.name,(predicate)=>false);
       }
     } catch (e) {

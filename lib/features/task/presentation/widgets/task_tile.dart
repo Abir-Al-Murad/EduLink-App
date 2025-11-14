@@ -1,8 +1,9 @@
+import 'package:EduLink/core/services/notification_sevice.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:EduLink/app/collections.dart';
 import 'package:EduLink/core/services/auth_controller.dart';
-import 'package:EduLink/features/home/data/model/task_model.dart';
+import 'package:EduLink/features/task/data/model/task_model.dart';
 import 'package:EduLink/features/shared/presentaion/widgets/ShowSnackBarMessage.dart';
 import 'package:EduLink/features/shared/presentaion/widgets/format_Date.dart';
 
@@ -25,8 +26,9 @@ class TaskTile extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
+          color: Colors.white,
           border: Border.all(
-            color: AppColors.themeColor.withOpacity(0.1),
+            color: AppColors.themeColor.withOpacity(0.2),
             width: 1,
           ),
         ),
@@ -318,6 +320,8 @@ class TaskTile extends StatelessWidget {
                               .update({
                             'completedBy':completedBy,
                           });
+                          NotificationService _notificationService = NotificationService();
+                          await _notificationService.cancelTaskNotifications(taskModel.id!);
                           ShowSnackBarMessage(context, "${taskModel.title} marked as completed");
                           refresh(true);
                           Navigator.pop(context);

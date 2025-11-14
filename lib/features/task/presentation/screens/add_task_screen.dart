@@ -1,12 +1,15 @@
+import 'package:EduLink/core/services/notification_sevice.dart';
+import 'package:EduLink/features/shared/presentaion/widgets/centered_circular_progress.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:EduLink/core/services/auth_controller.dart';
-import 'package:EduLink/features/home/data/model/task_model.dart';
-import 'package:EduLink/features/home/presentation/controllers/task_controller.dart';
+import 'package:EduLink/features/task/data/model/task_model.dart';
 import 'package:EduLink/features/shared/presentaion/widgets/ShowSnackBarMessage.dart';
 import 'package:EduLink/features/shared/presentaion/widgets/icon_filled_button.dart';
+
+import '../controllers/task_controller.dart';
 
 
 class AddTaskScreen extends StatefulWidget {
@@ -120,10 +123,14 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
             // Submit Button
             GetBuilder<TaskController>(
               builder: (controller) {
-                return IconFilledButton(
-                  onTap: submitTask,
-                  title: "Add Task",
-                  );
+                return Visibility(
+                  visible: controller.isLoading == false,
+                  replacement: CenteredCircularProgress(),
+                  child: IconFilledButton(
+                    onTap: submitTask,
+                    title: "Add Task",
+                    ),
+                );
               }
             ),
           ],
@@ -141,17 +148,13 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       TaskModel model = TaskModel(title: titleController.text.trim(), description: descriptionController.text.trim(), deadline: Timestamp.fromDate(deadline!));
      final bool isSucces =  await _taskController.addNewTask(model,AuthController.classDocId!);
      if(isSucces){
+       _onTaskAdded(model);
        titleController.clear();
        descriptionController.clear();
        Navigator.pop(context,true);
        ShowSnackBarMessage(context, "Successfully Added");
      }
     }
-
-    // Firestore save logic
-    print("Title: ${titleController.text}");
-    print("Description: ${descriptionController.text}");
-    print("Deadline: $deadline");
   }
 
 
@@ -168,6 +171,16 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         deadline = picked;
       });
     }
+  }
+
+  Future<void> _onTaskAdded(TaskModel task) async {
+    NotificationService _notificationService = NotificationService();
+    await _notificationService.scheduleTaskDeadlineNotification(
+      taskId: task.id!,
+      title: task.title,
+      body: task.description,
+      deadline: task.deadline,
+    );
   }
   
 }

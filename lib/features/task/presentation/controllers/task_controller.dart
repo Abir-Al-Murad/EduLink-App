@@ -9,6 +9,7 @@ class TaskController extends GetxController{
   bool _isLoading = false;
   bool get isLoading => _isLoading;
   Future<bool> addNewTask(TaskModel model,String classDocId) async {
+    _isLoading = true;
     try {
       final taskCollection = FirebaseFirestore.instance
           .collection(Collectons.classes)
@@ -22,10 +23,13 @@ class TaskController extends GetxController{
         model.deadline,
       ));
       print('Task Added at : ${classDocId}');
+      _isLoading = false;
       update();
       return true; // success
     } catch (e) {
       print("Add Task Error: $e");
+      _isLoading = false;
+      update();
       return false; // failed
     }
   }

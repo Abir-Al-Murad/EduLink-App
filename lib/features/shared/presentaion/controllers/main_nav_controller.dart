@@ -16,6 +16,7 @@ class MainNavControler extends GetxController{
 
   void backToHome(){
     _selectedIndex = 0;
+    update();
   }
 
 }

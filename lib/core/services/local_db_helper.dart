@@ -7,10 +7,10 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import '../../features/classroom/data/models/class_room_model.dart';
-import '../../features/home/data/model/task_model.dart';
 import '../../features/notice/data/models/notice_model.dart';
 import '../../features/profile/data/models/user_model.dart';
 import '../../features/routine/data/models/routine_model.dart';
+import '../../features/task/data/model/task_model.dart';
 
 class LocalDbHelper {
   LocalDbHelper._();

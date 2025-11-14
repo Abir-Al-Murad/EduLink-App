@@ -20,6 +20,10 @@ class _MyAppState extends State<MyApp> {
       initialBinding: ControllerBinding(),
       onGenerateRoute: onGenerateRoute,
       theme: ThemeData(
+        appBarTheme: AppBarTheme(
+          color: Colors.grey.shade50
+        ),
+        scaffoldBackgroundColor: Colors.grey.shade50,
         hintColor: Colors.grey,
         progressIndicatorTheme: ProgressIndicatorThemeData(
           color: AppColors.royalThemeColor,

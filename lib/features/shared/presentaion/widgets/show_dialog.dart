@@ -4,8 +4,9 @@ import 'package:EduLink/core/services/auth_controller.dart';
 import 'package:EduLink/features/shared/presentaion/widgets/ShowSnackBarMessage.dart';
 
 import '../../../../app/app_colors.dart';
-import '../../../home/data/model/task_model.dart';
-import '../../../home/presentation/controllers/task_controller.dart';
+import '../../../task/data/model/task_model.dart';
+import '../../../task/presentation/controllers/task_controller.dart';
+
 
 Future<dynamic> buildShowDialog(BuildContext context, TaskModel item) {
   return showDialog(

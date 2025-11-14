@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../features/auth/presentaion/screens/signin_screen.dart';
 import '../features/auth/presentaion/screens/signup_screen.dart';
 import '../features/classroom/presentation/screens/my_classrooms_screen.dart';
-import '../features/home/presentation/screens/add_task_screen.dart';
-import '../features/home/presentation/screens/home_screen.dart';
+import '../features/task/presentation/screens/add_task_screen.dart';
+import '../features/task/presentation/screens/task_screen.dart';
 import '../features/notice/data/models/notice_model.dart';
 import '../features/notice/presentation/screens/add_notice_screen.dart';
 import '../features/notice/presentation/screens/notice_details_screen.dart';
@@ -26,8 +26,8 @@ MaterialPageRoute onGenerateRoute(RouteSettings settings){
     screen = SigninScreen();
   }else if(settings.name == MyClassrooms.name){
     screen = MyClassrooms();
-  }else if(settings.name == HomeScreen.name){
-    screen = HomeScreen();
+  }else if(settings.name == TaskScreen.name){
+    screen = TaskScreen();
   }else if(settings.name == BottomNavHolder.name){
     screen = BottomNavHolder();
   }else if(settings.name == SignupScreen.name){
