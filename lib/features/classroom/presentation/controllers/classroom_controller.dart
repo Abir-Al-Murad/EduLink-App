@@ -1,12 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:universityclassroommanagement/app/collections.dart';
-import 'package:universityclassroommanagement/core/services/auth_controller.dart';
-import 'package:universityclassroommanagement/features/classroom/data/models/class_room_model.dart';
-import 'package:universityclassroommanagement/features/profile/data/models/user_model.dart';
-
+import '../../../../app/collections.dart';
+import '../../../../core/services/auth_controller.dart';
 import '../../../../core/services/local_db_helper.dart';
+import '../../../profile/data/models/user_model.dart';
+import '../../data/models/class_room_model.dart';
 
 class ClassRoomController extends GetxController {
   UserModel? _currentUser;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_state_manager/src/simple/get_state.dart';
-import 'package:universityclassroommanagement/core/services/auth_controller.dart';
-import 'package:universityclassroommanagement/features/shared/presentaion/widgets/ShowSnackBarMessage.dart';
+import 'package:EduLink/core/services/auth_controller.dart';
+import 'package:EduLink/features/shared/presentaion/widgets/ShowSnackBarMessage.dart';
 
 import '../../../../app/app_colors.dart';
 import '../../../home/data/model/task_model.dart';

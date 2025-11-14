@@ -2,7 +2,8 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:universityclassroommanagement/core/services/local_db_helper.dart';
+
+import '../../../../core/services/local_db_helper.dart';
 
 class TaskModel {
   final String? id;

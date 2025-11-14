@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:universityclassroommanagement/features/home/data/model/task_model.dart';
-import 'package:universityclassroommanagement/features/home/presentation/widgets/task_tile.dart';
+import 'package:EduLink/features/home/data/model/task_model.dart';
+import 'package:EduLink/features/home/presentation/widgets/task_tile.dart';
 
 import '../../../shared/presentaion/widgets/show_dialog.dart';
 

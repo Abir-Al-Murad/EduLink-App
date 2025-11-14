@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:universityclassroommanagement/features/shared/presentaion/widgets/ShowSnackBarMessage.dart';
 
 class ConnectivityService{
   ConnectivityService._();

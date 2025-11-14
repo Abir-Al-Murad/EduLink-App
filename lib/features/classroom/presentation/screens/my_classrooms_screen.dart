@@ -1,24 +1,23 @@
 import 'dart:async';
 
+import 'package:EduLink/core/services/connectivity_service.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
-import 'package:universityclassroommanagement/core/services/auth_controller.dart';
-import 'package:universityclassroommanagement/core/services/local_db_helper.dart';
-import 'package:universityclassroommanagement/features/classroom/data/models/class_room_model.dart';
-import 'package:universityclassroommanagement/features/classroom/presentation/controllers/classroom_controller.dart';
-import 'package:universityclassroommanagement/features/classroom/presentation/widgets/class_room_card.dart';
-import 'package:universityclassroommanagement/features/profile/data/models/user_model.dart';
-import 'package:universityclassroommanagement/features/report%20and%20feedback/presentation/screens/report_and_feedback.dart';
-import 'package:universityclassroommanagement/features/shared/presentaion/screens/bottom_nav_holder.dart';
-import 'package:universityclassroommanagement/features/shared/presentaion/utils/check_admin.dart';
-import 'package:universityclassroommanagement/features/shared/presentaion/widgets/ShowSnackBarMessage.dart';
-import 'package:universityclassroommanagement/features/shared/presentaion/widgets/centered_circular_progress.dart';
-
 import '../../../../app/app_colors.dart';
+import '../../../../core/services/auth_controller.dart';
+import '../../../../core/services/local_db_helper.dart';
 import '../../../auth/presentaion/screens/signin_screen.dart';
+import '../../../profile/data/models/user_model.dart';
+import '../../../report and feedback/presentation/screens/report_and_feedback.dart';
+import '../../../shared/presentaion/screens/bottom_nav_holder.dart';
+import '../../../shared/presentaion/widgets/ShowSnackBarMessage.dart';
+import '../../../shared/presentaion/widgets/centered_circular_progress.dart';
+import '../../data/models/class_room_model.dart';
+import '../controllers/classroom_controller.dart';
+import '../widgets/class_room_card.dart';
 
 class MyClassrooms extends StatefulWidget {
   const MyClassrooms({super.key});
@@ -88,6 +87,11 @@ class _MyClassroomsState extends State<MyClassrooms> {
   }
 
   @override
+  void dispose() {
+    ConnectivityService().isOffline.removeListener(_initConnectivity);
+    super.dispose();
+  }
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: Drawer(
@@ -124,18 +128,6 @@ class _MyClassroomsState extends State<MyClassrooms> {
               ),
               accountEmail: Text(userModel.email),
             ),
-
-            // Drawer Items
-            ListTile(
-              leading: const Icon(Icons.home_outlined, color: Colors.black87),
-              title: const Text("Home"),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: const Icon(Icons.class_outlined, color: Colors.black87),
-              title: const Text("My Classes"),
-              onTap: () {},
-            ),
             ListTile(
               leading: const Icon(
                 Icons.settings_outlined,
@@ -148,7 +140,7 @@ class _MyClassroomsState extends State<MyClassrooms> {
             ),
             const Divider(),
 
-            // Logout Section
+
             ListTile(
               leading: const Icon(Icons.logout, color: Colors.redAccent),
               title: const Text("Logout"),
@@ -158,6 +150,7 @@ class _MyClassroomsState extends State<MyClassrooms> {
                 AuthController.user = null;
                 AuthController.classDocId = null;
                 AuthController.isAdmin = false;
+                await Get.find<AuthController>().clearUserData();
                 Navigator.pushNamedAndRemoveUntil(
                   context,
                   SigninScreen.name,
@@ -208,12 +201,8 @@ class _MyClassroomsState extends State<MyClassrooms> {
               itemBuilder: (context, index) {
                 return ClassroomCard(
                   classroom: myClasses[index],
-                  onTap: () async {
+                  onTap: (){
                     AuthController.currentClassRoom = myClasses[index];
-                    AuthController.isAdmin = await checkAdmin(
-                      myClasses[index].id!,
-                      user!.uid,
-                    );
                     AuthController.classDocId = myClasses[index].id;
                     Navigator.pushNamed(context, BottomNavHolder.name);
                   },

@@ -2,7 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:universityclassroommanagement/features/classroom/presentation/screens/my_classrooms_screen.dart';
+
+import '../../../classroom/presentation/screens/my_classrooms_screen.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});

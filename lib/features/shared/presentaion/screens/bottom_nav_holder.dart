@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:universityclassroommanagement/features/home/presentation/screens/home_screen.dart';
-import 'package:universityclassroommanagement/features/notice/presentation/screens/notice_screen.dart';
-import 'package:universityclassroommanagement/features/profile/presentaion/screens/profile_screen.dart';
-import 'package:universityclassroommanagement/features/routine/presentation/screens/routine_screen.dart';
-import 'package:universityclassroommanagement/features/shared/presentaion/controllers/main_nav_controller.dart';
+import 'package:EduLink/features/home/presentation/screens/home_screen.dart';
+import 'package:EduLink/features/notice/presentation/screens/notice_screen.dart';
+import 'package:EduLink/features/profile/presentaion/screens/profile_screen.dart';
+import 'package:EduLink/features/routine/presentation/screens/routine_screen.dart';
+import 'package:EduLink/features/shared/presentaion/controllers/main_nav_controller.dart';
+
+import '../../../../core/services/auth_controller.dart';
+import '../utils/check_admin.dart';
 
 class BottomNavHolder extends StatefulWidget {
   const BottomNavHolder({super.key});
@@ -22,6 +25,12 @@ class _BottomNavHolderState extends State<BottomNavHolder> {
     ProfileScreen(),
   ];
   final MainNavControler mainNavControler = Get.find<MainNavControler>();
+
+  @override
+  void initState() {
+    checkAdmin(AuthController.classDocId!, AuthController.user!.uid);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -1,4 +1,4 @@
-name: universityclassroommanagement
+name: EduLink
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -50,10 +50,21 @@ dependencies:
   url_launcher_android:
   path_provider: ^2.1.5
   path: ^1.9.1
+  shared_preferences: ^2.5.3
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  flutter_launcher_icons: ^0.14.4
+
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/edulinkPng.png"
+  min_sdk_android: 21
+  remove_alpha_ios: true
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

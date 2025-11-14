@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:universityclassroommanagement/app/collections.dart';
-import 'package:universityclassroommanagement/core/services/auth_controller.dart';
-import 'package:universityclassroommanagement/features/classroom/data/models/class_room_model.dart';
-import 'package:universityclassroommanagement/features/profile/data/models/user_model.dart';
+import '../../../../app/collections.dart';
+import '../../../../core/services/auth_controller.dart';
+import '../../../classroom/data/models/class_room_model.dart';
+import '../../data/models/user_model.dart';
 
 class MembersListScreen extends StatefulWidget {
   const MembersListScreen({super.key});

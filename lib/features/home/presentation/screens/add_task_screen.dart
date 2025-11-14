@@ -2,11 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:universityclassroommanagement/core/services/auth_controller.dart';
-import 'package:universityclassroommanagement/features/home/data/model/task_model.dart';
-import 'package:universityclassroommanagement/features/home/presentation/controllers/task_controller.dart';
-import 'package:universityclassroommanagement/features/shared/presentaion/widgets/ShowSnackBarMessage.dart';
-import 'package:universityclassroommanagement/features/shared/presentaion/widgets/icon_filled_button.dart';
+import 'package:EduLink/core/services/auth_controller.dart';
+import 'package:EduLink/features/home/data/model/task_model.dart';
+import 'package:EduLink/features/home/presentation/controllers/task_controller.dart';
+import 'package:EduLink/features/shared/presentaion/widgets/ShowSnackBarMessage.dart';
+import 'package:EduLink/features/shared/presentaion/widgets/icon_filled_button.dart';
+
 
 class AddTaskScreen extends StatefulWidget {
   const AddTaskScreen({super.key});

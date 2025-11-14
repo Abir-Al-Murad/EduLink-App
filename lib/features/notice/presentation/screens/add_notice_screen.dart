@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:universityclassroommanagement/core/services/auth_controller.dart';
-import 'package:universityclassroommanagement/features/notice/data/models/notice_model.dart';
-import 'package:universityclassroommanagement/features/notice/presentation/controllers/add_notice_controler.dart';
-import 'package:universityclassroommanagement/features/shared/presentaion/widgets/ShowSnackBarMessage.dart';
+import 'package:EduLink/core/services/auth_controller.dart';
+import 'package:EduLink/features/notice/data/models/notice_model.dart';
+import 'package:EduLink/features/notice/presentation/controllers/add_notice_controler.dart';
+import 'package:EduLink/features/shared/presentaion/widgets/ShowSnackBarMessage.dart';
 
 class AddNotice extends StatefulWidget {
   const AddNotice({super.key});

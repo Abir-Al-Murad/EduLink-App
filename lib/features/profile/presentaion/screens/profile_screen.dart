@@ -2,14 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:universityclassroommanagement/app/app_colors.dart';
-import 'package:universityclassroommanagement/app/collections.dart';
-import 'package:universityclassroommanagement/core/services/auth_controller.dart';
-import 'package:universityclassroommanagement/features/classroom/presentation/screens/my_classrooms_screen.dart';
-import 'package:universityclassroommanagement/features/profile/data/models/user_model.dart';
-import 'package:universityclassroommanagement/features/profile/presentaion/screens/members_list_screen.dart';
-import 'package:universityclassroommanagement/features/shared/presentaion/controllers/main_nav_controller.dart';
-import 'package:universityclassroommanagement/features/shared/presentaion/widgets/ShowSnackBarMessage.dart';
+import 'package:EduLink/app/app_colors.dart';
+import 'package:EduLink/app/collections.dart';
+import 'package:EduLink/core/services/auth_controller.dart';
+import 'package:EduLink/features/classroom/presentation/screens/my_classrooms_screen.dart';
+import 'package:EduLink/features/profile/data/models/user_model.dart';
+import 'package:EduLink/features/profile/presentaion/screens/members_list_screen.dart';
+import 'package:EduLink/features/shared/presentaion/controllers/main_nav_controller.dart';
+import 'package:EduLink/features/shared/presentaion/widgets/ShowSnackBarMessage.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});

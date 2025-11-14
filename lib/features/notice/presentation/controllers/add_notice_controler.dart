@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
-import 'package:universityclassroommanagement/app/collections.dart';
-import 'package:universityclassroommanagement/features/notice/data/models/notice_model.dart';
+import 'package:EduLink/app/collections.dart';
+import 'package:EduLink/features/notice/data/models/notice_model.dart';
 
 import '../../../../core/services/auth_controller.dart';
 
@@ -19,7 +19,7 @@ class AddNoticeController extends GetxController{
       final firestoreCollection = FirebaseFirestore.instance.collection(Collectons.classes).doc(classDocId).collection(Collectons.notice);
 
      await firestoreCollection.add(
-        model.toFireStore(model.title, model.description),
+        model.toFireStore(),
       );
       isSuccess = true;
     }catch(e){

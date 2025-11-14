@@ -21,6 +21,14 @@ class UserModel {
 
 
   factory UserModel.fromFireStore(Map<String, dynamic> data) {
+    dynamic lastLoginData = data['lastLogin'];
+    Timestamp? lastLogin;
+
+    if (lastLoginData is Timestamp) {
+      lastLogin = lastLoginData;
+    } else if (lastLoginData is int) {
+      lastLogin = Timestamp.fromMillisecondsSinceEpoch(lastLoginData);
+    }
     return UserModel(
       uid: data['uid'] ?? '',
       name: data['name'] ?? '',
@@ -28,7 +36,7 @@ class UserModel {
       photoUrl: data['photoUrl'] ?? '',
       fcmToken: data['fcmToken'],
       joinedClasses: List<String>.from(data['joinedClasses'] ?? []),
-      lastLogin: data['lastLogin'],
+      lastLogin: lastLogin,
     );
   }
 
@@ -41,7 +49,7 @@ class UserModel {
       'photoUrl': photoUrl,
       'fcmToken': fcmToken,
       'joinedClasses': joinedClasses,
-      'lastLogin': lastLogin ?? Timestamp.now(),
+      'lastLogin': (lastLogin ?? Timestamp.now()).millisecondsSinceEpoch,
     };
   }
 }

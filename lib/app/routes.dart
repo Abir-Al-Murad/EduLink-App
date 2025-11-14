@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:universityclassroommanagement/features/auth/presentaion/screens/signin_screen.dart';
-import 'package:universityclassroommanagement/features/auth/presentaion/screens/signup_screen.dart';
-import 'package:universityclassroommanagement/features/classroom/presentation/screens/my_classrooms_screen.dart';
-import 'package:universityclassroommanagement/features/home/presentation/screens/add_task_screen.dart';
-import 'package:universityclassroommanagement/features/home/presentation/screens/home_screen.dart';
-import 'package:universityclassroommanagement/features/notice/data/models/notice_model.dart';
-import 'package:universityclassroommanagement/features/notice/presentation/screens/add_notice_screen.dart';
-import 'package:universityclassroommanagement/features/notice/presentation/screens/notice_details_screen.dart';
-import 'package:universityclassroommanagement/features/profile/presentaion/screens/members_list_screen.dart';
-import 'package:universityclassroommanagement/features/report%20and%20feedback/presentation/screens/report_and_feedback.dart';
-import 'package:universityclassroommanagement/features/routine/presentation/screens/add_routine_screen.dart';
-import 'package:universityclassroommanagement/features/shared/presentaion/screens/bottom_nav_holder.dart';
+import '../features/auth/presentaion/screens/signin_screen.dart';
+import '../features/auth/presentaion/screens/signup_screen.dart';
+import '../features/classroom/presentation/screens/my_classrooms_screen.dart';
+import '../features/home/presentation/screens/add_task_screen.dart';
+import '../features/home/presentation/screens/home_screen.dart';
+import '../features/notice/data/models/notice_model.dart';
+import '../features/notice/presentation/screens/add_notice_screen.dart';
+import '../features/notice/presentation/screens/notice_details_screen.dart';
+import '../features/profile/presentaion/screens/members_list_screen.dart';
+import '../features/report and feedback/presentation/screens/report_and_feedback.dart';
+import '../features/routine/presentation/screens/add_routine_screen.dart';
+import '../features/shared/presentaion/screens/bottom_nav_holder.dart';
 
 MaterialPageRoute onGenerateRoute(RouteSettings settings){
   late Widget screen;

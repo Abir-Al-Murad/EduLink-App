@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:universityclassroommanagement/features/shared/presentaion/widgets/format_Date.dart';
 
 import '../../../../app/app_colors.dart';
+import '../../../shared/presentaion/widgets/format_Date.dart';
 import '../../data/models/class_room_model.dart';
 
 class ClassroomCard extends StatelessWidget {

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:universityclassroommanagement/app/assets_path.dart';
-import 'package:universityclassroommanagement/features/auth/presentaion/controllers/signin_and_signup_controller.dart';
-import 'package:universityclassroommanagement/features/auth/presentaion/widgets/eleveted_button_with_logo.dart';
-import 'package:universityclassroommanagement/features/classroom/presentation/screens/my_classrooms_screen.dart';
-import 'package:universityclassroommanagement/features/shared/presentaion/widgets/ShowSnackBarMessage.dart';
-
+import '../../../../app/assets_path.dart';
+import '../../../classroom/presentation/screens/my_classrooms_screen.dart';
+import '../../../shared/presentaion/widgets/ShowSnackBarMessage.dart';
+import '../controllers/signin_and_signup_controller.dart';
+import '../widgets/eleveted_button_with_logo.dart';
 import '../widgets/hero_logo.dart';
 
 class SigninScreen extends StatefulWidget {
@@ -49,7 +48,7 @@ class _SigninScreenState extends State<SigninScreen> {
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 20),
-                      // ✅ Google Sign In button
+
                       ElelvetedButtonWithLogo(
                         onTap: _onTapSignIn,
                         titleText: 'Continue with Google',

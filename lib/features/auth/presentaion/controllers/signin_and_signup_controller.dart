@@ -4,10 +4,12 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:universityclassroommanagement/app/collections.dart';
-import 'package:universityclassroommanagement/core/services/auth_controller.dart';
-import 'package:universityclassroommanagement/core/services/local_db_helper.dart';
-import 'package:universityclassroommanagement/features/profile/data/models/user_model.dart';
+
+import '../../../../app/collections.dart';
+import '../../../../core/services/auth_controller.dart';
+import '../../../../core/services/local_db_helper.dart';
+import '../../../profile/data/models/user_model.dart';
+
 
 class SigninAndSignupController extends GetxController {
   bool _isLoading = false;

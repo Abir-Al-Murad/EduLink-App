@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:universityclassroommanagement/app/collections.dart';
-import 'package:universityclassroommanagement/core/services/auth_controller.dart';
-import 'package:universityclassroommanagement/core/services/connectivity_service.dart';
-import 'package:universityclassroommanagement/core/services/local_db_helper.dart';
-import 'package:universityclassroommanagement/features/routine/data/models/routine_model.dart';
-import 'package:universityclassroommanagement/features/routine/presentation/screens/add_routine_screen.dart';
-import 'package:universityclassroommanagement/features/shared/presentaion/widgets/icon_filled_button.dart';
+import 'package:EduLink/app/collections.dart';
+import 'package:EduLink/core/services/auth_controller.dart';
+import 'package:EduLink/core/services/connectivity_service.dart';
+import 'package:EduLink/core/services/local_db_helper.dart';
+import 'package:EduLink/features/routine/data/models/routine_model.dart';
+import 'package:EduLink/features/routine/presentation/screens/add_routine_screen.dart';
+import 'package:EduLink/features/shared/presentaion/widgets/icon_filled_button.dart';
 
 import '../widgets/routine_card.dart';
 
@@ -54,6 +54,7 @@ class _RoutineScreenState extends State<RoutineScreen>
 
     // Listen to connectivity changes
     _connectivity.isOffline.addListener(() {
+      if(!mounted) return;
       _loadAllRoutines();
     });
   }
@@ -85,7 +86,7 @@ class _RoutineScreenState extends State<RoutineScreen>
         // Insert into local DB
         for (var doc in snapshot.docs) {
           final routine = RoutineModel.fromFireStore(doc.data());
-          await dbHelper.insertRoutine(routine, AuthController.classDocId!,day);
+          await dbHelper.insertRoutine(routine, AuthController.classDocId!,day,doc.id);
         }
 
         return snapshot.docs

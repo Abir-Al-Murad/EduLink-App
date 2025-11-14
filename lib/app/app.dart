@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:universityclassroommanagement/app/app_colors.dart';
-import 'package:universityclassroommanagement/app/controller_binder.dart';
-import 'package:universityclassroommanagement/app/routes.dart';
-import 'package:universityclassroommanagement/splash_screen.dart';
+import 'package:EduLink/app/app_colors.dart';
+import 'package:EduLink/app/controller_binder.dart';
+import 'package:EduLink/app/routes.dart';
+import 'package:EduLink/splash_screen.dart';
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});

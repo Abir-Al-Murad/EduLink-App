@@ -4,16 +4,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:universityclassroommanagement/app/app_colors.dart';
-import 'package:universityclassroommanagement/app/assets_path.dart';
-import 'package:universityclassroommanagement/app/collections.dart';
-import 'package:universityclassroommanagement/core/services/auth_controller.dart';
-import 'package:universityclassroommanagement/core/services/connectivity_service.dart';
-import 'package:universityclassroommanagement/core/services/local_db_helper.dart';
-import 'package:universityclassroommanagement/features/home/data/model/task_model.dart';
-import 'package:universityclassroommanagement/features/home/presentation/screens/add_task_screen.dart';
-import 'package:universityclassroommanagement/features/home/presentation/widgets/task_selector.dart';
-import 'package:universityclassroommanagement/features/home/presentation/widgets/task_view.dart';
+
+import '../../../../app/app_colors.dart';
+import '../../../../app/assets_path.dart';
+import '../../../../app/collections.dart';
+import '../../../../core/services/auth_controller.dart';
+import '../../../../core/services/connectivity_service.dart';
+import '../../../../core/services/local_db_helper.dart';
+import '../../data/model/task_model.dart';
+import '../widgets/task_selector.dart';
+import '../widgets/task_view.dart';
+import 'add_task_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,19 +29,20 @@ class _HomeScreenState extends State<HomeScreen>{
   final ValueNotifier<int> selectedIndex = ValueNotifier(0);
   late Future<List<TaskModel>> _allTasks = Future.value([]);
   final _connectivity = ConnectivityService();
+  late final VoidCallback _connectivityListener;
 
 
 
   @override
   void initState() {
     _allTasks = _fetchData();
-      _connectivity.isOffline.addListener((){
-
-        if(!mounted) return;
-        setState(() {
-          _allTasks = _fetchData();
-        });
+    _connectivityListener = () {
+      if (!mounted) return;
+      setState(() {
+        _allTasks = _fetchData();
       });
+    };
+      _connectivity.isOffline.addListener((_connectivityListener));
     super.initState();
   }
 
@@ -71,6 +73,11 @@ class _HomeScreenState extends State<HomeScreen>{
       debugPrint("❌ Error fetching tasks: $e");
       return [];
     }
+  }
+  @override
+  void dispose() {
+    _connectivity.isOffline.removeListener(_connectivityListener);
+    super.dispose();
   }
 
   @override

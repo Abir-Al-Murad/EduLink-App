@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:universityclassroommanagement/features/notice/data/models/notice_model.dart';
-import 'package:universityclassroommanagement/features/shared/presentaion/widgets/format_Date.dart';
-
+import '../../../shared/presentaion/widgets/format_Date.dart';
+import '../../data/models/notice_model.dart';
 import '../widgets/linkify_description.dart';
 
 class NoticeDetailsScreen extends StatefulWidget {

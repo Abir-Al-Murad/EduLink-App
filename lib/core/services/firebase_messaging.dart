@@ -1,5 +1,6 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:universityclassroommanagement/core/services/notification_sevice.dart';
+
+import 'notification_sevice.dart';
 
 class FirebaseMessagingService{
   FirebaseMessaging messaging = FirebaseMessaging.instance;

@@ -6,11 +6,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:universityclassroommanagement/features/home/data/model/task_model.dart';
-import 'package:universityclassroommanagement/features/profile/data/models/user_model.dart';
-import 'package:universityclassroommanagement/features/routine/data/models/routine_model.dart';
-
 import '../../features/classroom/data/models/class_room_model.dart';
+import '../../features/home/data/model/task_model.dart';
+import '../../features/notice/data/models/notice_model.dart';
+import '../../features/profile/data/models/user_model.dart';
+import '../../features/routine/data/models/routine_model.dart';
 
 class LocalDbHelper {
   LocalDbHelper._();
@@ -56,6 +56,17 @@ class LocalDbHelper {
   static final String COLUMN_TIME = 'time';
   static final String COLUMN_DAY = 'day';
   static final String COLUMN_CLASS_ID_ROUTINE = 'class_id';
+  static final String COLUMN_ROUTINE_ID = 'routine_id';
+
+
+  //Notice Table
+  static final String TABLE_NOTICE = 'notice';
+  static final String COLUMN_NOTICE_DESCRIPTION = 'description';
+  static final String COLUMN_NOTICE_TITLE = 'title';
+  static final String COLUMN_NOTICE_CREATED_AT = 'createdAt';
+  static final String COLUMN_NOTICE_ID = 'notice_id';
+  static final String COLUMN_NOTICE_CLASS_ID = 'notice_class_id';
+
 
   Database? myDB;
 
@@ -118,9 +129,20 @@ class LocalDbHelper {
           $COLUMN_TEACHER TEXT,
           $COLUMN_TIME TEXT,
           $COLUMN_CLASS_ID_ROUTINE TEXT,
-          $COLUMN_DAY TEXT
+          $COLUMN_DAY TEXT,
+          $COLUMN_ROUTINE_ID TEXT PRIMARY KEY
           )
         ''');
+
+        await db.execute(
+          '''CREATE TABLE $TABLE_NOTICE (
+              $COLUMN_NOTICE_ID TEXT PRIMARY KEY,
+              $COLUMN_NOTICE_CLASS_ID TEXT,
+              $COLUMN_NOTICE_TITLE TEXT NOT NULL,
+              $COLUMN_NOTICE_DESCRIPTION TEXT,
+              $COLUMN_NOTICE_CREATED_AT INTEGER
+          )'''
+        );
       },
       onUpgrade: (db, oldVersion, newVersion) async {
         if (oldVersion < 2) {
@@ -287,6 +309,15 @@ class LocalDbHelper {
       return [];
     }
   }
+  Future<ClassRoomModel?>getClass(String classID)async{
+    try{
+      final db =await getDB();
+      final res =await db.query(TABLE_CLASSES,where: "$COLUMN_CLASS_ID = ?",whereArgs:[classID]);
+      return ClassRoomModel.fromFireStore(res.first,res.first[COLUMN_CLASS_ID].toString());
+    }catch(e){
+      return null;
+    }
+  }
 
   Future<void> clear() async {
     final db = await getDB();
@@ -331,7 +362,7 @@ class LocalDbHelper {
     }
   }
 
-  Future<void> insertRoutine(RoutineModel model, String classDocId,String day) async {
+  Future<void> insertRoutine(RoutineModel model, String classDocId,String day,String id) async {
     try {
       final db = await getDB();
 
@@ -339,6 +370,7 @@ class LocalDbHelper {
       Map<String, dynamic> data = model.toFireStore();
       data[COLUMN_CLASS_ID_ROUTINE] = classDocId;
       data[COLUMN_DAY] = day;
+      data[COLUMN_ROUTINE_ID] = id;
 
 
       await db.insert(
@@ -353,7 +385,6 @@ class LocalDbHelper {
     }
   }
 
-// Fixed getRoutine method
   Future<List<RoutineModel>> getRoutine(String classDocID, String day) async {
     try {
       final db = await getDB();
@@ -365,16 +396,6 @@ class LocalDbHelper {
       );
 
       debugPrint("🔍 Found ${data.length} routines for $day from local DB");
-      debugPrint("🔍 Query: class_id=$classDocID, day=$day");
-
-      // Debug: Print what's actually in the table
-      if (data.isEmpty) {
-        final allData = await db.query(TABLE_ROUTINE);
-        debugPrint("📊 Total routines in DB: ${allData.length}");
-        if (allData.isNotEmpty) {
-          debugPrint("📊 Sample data: ${allData.first}");
-        }
-      }
 
       return data.map((e) => RoutineModel.fromFireStore(e)).toList();
     } catch (e) {
@@ -382,4 +403,33 @@ class LocalDbHelper {
       return [];
     }
   }
+
+
+  Future<void> insertNotice(NoticeModel model,String classId)async{
+    try{
+      final db =await getDB();
+      Map<String,dynamic> data = model.toMap();
+      data[COLUMN_NOTICE_ID] = model.id;
+      data[COLUMN_NOTICE_CLASS_ID] = classId;
+      db.insert(TABLE_NOTICE, data,conflictAlgorithm: ConflictAlgorithm.replace);
+      debugPrint("Successfully  Notice - ${model.title} inserted");
+    }catch(e){
+      debugPrint("Notice Insertion failed");
+    }
+  }
+
+  Future<List<NoticeModel>> getAllNotice(String classId) async {
+    final db = await getDB();
+    final List<Map<String, dynamic>> maps = await db.query(
+      TABLE_NOTICE,
+      where: '$COLUMN_NOTICE_CLASS_ID = ?',
+      whereArgs: [classId],
+      orderBy: 'createdAt DESC',
+    );
+
+    return List.generate(maps.length, (i) {
+      return NoticeModel.fromMap(maps[i]);
+    });
+  }
+
 }

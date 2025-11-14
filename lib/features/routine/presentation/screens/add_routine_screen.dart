@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:universityclassroommanagement/app/app_colors.dart';
-import 'package:universityclassroommanagement/app/collections.dart';
-import 'package:universityclassroommanagement/core/services/auth_controller.dart';
+import 'package:EduLink/app/app_colors.dart';
+import 'package:EduLink/app/collections.dart';
+import 'package:EduLink/core/services/auth_controller.dart';
 
 class AddRoutineScreen extends StatefulWidget {
   const AddRoutineScreen({super.key, required this.day});

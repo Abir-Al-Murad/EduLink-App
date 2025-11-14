@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:universityclassroommanagement/core/services/auth_controller.dart';
-import 'package:universityclassroommanagement/features/report%20and%20feedback/presentation/controllers/report_and_feedback_controller.dart';
+import 'package:EduLink/core/services/auth_controller.dart';
+import 'package:EduLink/features/report%20and%20feedback/presentation/controllers/report_and_feedback_controller.dart';
 
 import '../../../shared/presentaion/widgets/ShowSnackBarMessage.dart';
 

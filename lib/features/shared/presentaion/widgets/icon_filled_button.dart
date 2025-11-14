@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:universityclassroommanagement/app/app_colors.dart';
+import 'package:EduLink/app/app_colors.dart';
 
 class IconFilledButton extends StatelessWidget {
   const IconFilledButton({super.key, required this.onTap, required this.title});

@@ -1,12 +1,16 @@
+import 'package:EduLink/app/collections.dart';
+import 'package:EduLink/core/services/connectivity_service.dart';
+import 'package:EduLink/features/profile/data/models/user_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:universityclassroommanagement/app/assets_path.dart';
-import 'package:universityclassroommanagement/core/services/auth_controller.dart';
-import 'package:universityclassroommanagement/core/services/firebase_messaging.dart';
-import 'package:universityclassroommanagement/core/services/local_db_helper.dart';
-import 'package:universityclassroommanagement/features/auth/presentaion/screens/signin_screen.dart';
-import 'package:universityclassroommanagement/features/classroom/presentation/screens/my_classrooms_screen.dart';
+import 'package:get/get.dart';
+import 'package:EduLink/app/assets_path.dart';
+import 'package:EduLink/core/services/auth_controller.dart';
+import 'package:EduLink/core/services/firebase_messaging.dart';
+import 'package:EduLink/features/auth/presentaion/screens/signin_screen.dart';
+import 'package:EduLink/features/classroom/presentation/screens/my_classrooms_screen.dart';
 
 import 'features/auth/presentaion/widgets/hero_logo.dart';
 
@@ -22,9 +26,6 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> moveToNext()async{
     FirebaseMessagingService service = FirebaseMessagingService();
     final NotificationSettings settings = await service.settings();
-
-    LocalDbHelper dbInstance = LocalDbHelper.getInstance();
-    AuthController.user = await dbInstance.getUser();
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       print("✅ User granted permission");
     } else {
@@ -32,20 +33,68 @@ class _SplashScreenState extends State<SplashScreen> {
     }
 
     service.listenForegroundMessages();
-   await Future.delayed(Duration(seconds: 2));
    await checkLoginStatus();
    final messaging = FirebaseMessaging.instance;
    await messaging.requestPermission();
   }
 
   Future<void> checkLoginStatus()async{
-    final user = FirebaseAuth.instance.currentUser;
-    if(user !=null){
-      Navigator.pushNamedAndRemoveUntil(context, MyClassrooms.name, (predicate)=>false);
-    }else{
-      Navigator.pushNamedAndRemoveUntil(context, SigninScreen.name, (predicate)=>false);
 
+    if(!ConnectivityService().isOffline.value){
+      try {
+        final user = FirebaseAuth.instance.currentUser;
+
+        if(user !=null){
+          final currentUser = await FirebaseFirestore.instance.collection(Collectons.users).doc(user!.uid).get();
+           UserModel userModel = UserModel.fromFireStore(currentUser.data()!);
+          await Get.find<AuthController>().saveUserData(userModel);
+          Navigator.pushNamedAndRemoveUntil(context, MyClassrooms.name, (predicate)=>false);
+        }else{
+          Navigator.pushNamedAndRemoveUntil(context, SigninScreen.name, (predicate)=>false);
+
+        }
+      }catch (e) {
+        debugPrint("Something error on checking loginStatus");
+      }
+    }else{
+      try {
+        bool isUserLoggedIn = await Get.find<AuthController>().isUserAlreadyLoggedIn();
+
+        if (isUserLoggedIn) {
+          bool dataLoaded = await Get.find<AuthController>().loadUserData();
+
+          if (dataLoaded && AuthController.user != null) {
+            Navigator.pushNamedAndRemoveUntil(
+                context,
+                MyClassrooms.name,
+                    (predicate) => false
+            );
+          } else {
+            debugPrint("⚠️ User data corrupted, redirecting to sign in");
+            Navigator.pushNamedAndRemoveUntil(
+                context,
+                SigninScreen.name,
+                    (predicate) => false
+            );
+          }
+        } else {
+          Navigator.pushNamedAndRemoveUntil(
+              context,
+              SigninScreen.name,
+                  (predicate) => false
+          );
+        }
+      } catch (e) {
+        debugPrint("❌ Something error on checking loginStatus (Offline): $e");
+        Navigator.pushNamedAndRemoveUntil(
+            context,
+            SigninScreen.name,
+                (predicate) => false
+        );
+      }
     }
+
+
   }
 
   @override
