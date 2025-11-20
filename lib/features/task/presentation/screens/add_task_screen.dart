@@ -123,6 +123,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
             // Submit Button
             GetBuilder<TaskController>(
               builder: (controller) {
+                print(controller.isLoading);
                 return Visibility(
                   visible: controller.isLoading == false,
                   replacement: CenteredCircularProgress(),

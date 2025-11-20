@@ -77,6 +77,9 @@ class NotificationService {
     required Timestamp deadline,
   }) async {
     try {
+
+      await cancelTaskNotifications(taskId);
+
       final andriodImplementation = notificationPlugin
           .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin
@@ -88,18 +91,12 @@ class NotificationService {
 
       DateTime deadlineDate = deadline.toDate();
 
-      final pending = await notificationPlugin.pendingNotificationRequests();
-      final existingId = pending.map((n)=>n.id).toSet();
-      int beforeId = '${taskId}_before'.hashCode;
-      int deadlineId = '${taskId}_deadline'.hashCode;
+      await _scheduleOneDayBeforeNotification(
+          taskId: taskId, title: title, body: body, deadlineDate: deadlineDate);
+      await _scheduleDeadlineDayNotification(
+          taskId: taskId, title: title, body: body, deadlineDate: deadlineDate);
 
-      if(existingId.contains(beforeId)){
-        await _scheduleOneDayBeforeNotification(taskId: taskId, title: title, body: body, deadlineDate: deadlineDate);
 
-      }
-      if(existingId.contains(deadlineId)){
-        await _scheduleDeadlineDayNotification(taskId: taskId, title: title, body: body, deadlineDate: deadlineDate);
-      }
       debugPrint("✅ Scheduled notifications for task: $title");
     } catch (e) {
       debugPrint("❌ Error scheduling notifications: $e");

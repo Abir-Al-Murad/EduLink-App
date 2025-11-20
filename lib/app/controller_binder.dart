@@ -7,7 +7,7 @@ import 'package:EduLink/features/notice/presentation/controllers/add_notice_cont
 import 'package:EduLink/features/report%20and%20feedback/presentation/controllers/report_and_feedback_controller.dart';
 import 'package:EduLink/features/shared/presentaion/controllers/main_nav_controller.dart';
 
-class ControllerBinding extends Bindings{
+class ControllerBinding extends Bindings {
   @override
   void dependencies() {
     // TODO: implement dependencies
@@ -18,7 +18,5 @@ class ControllerBinding extends Bindings{
     Get.put(SigninAndSignupController());
     Get.put(ReportAndFeedBackController());
     Get.put(AuthController());
-
   }
-
 }

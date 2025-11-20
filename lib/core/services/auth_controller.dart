@@ -31,6 +31,8 @@ class AuthController extends GetxController{
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     sharedPreferences.setString(_userToken, jsonEncode(model.toFireStore()));
     sharedPreferences.setString(_idToken, model.uid);
+    user = model;
+    userId = model.uid;
 
     debugPrint('''
     --------------------------------------
@@ -44,6 +46,7 @@ class AuthController extends GetxController{
   Future<void>saveClassData(ClassRoomModel model)async{
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     sharedPreferences.setString(_classToken, jsonEncode(model.toFireStore()));
+
   }
 
   Future<bool> loadUserData() async {

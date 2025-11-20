@@ -1,3 +1,5 @@
+import 'package:EduLink/features/task/data/model/task_model.dart';
+import 'package:EduLink/features/task/presentation/screens/task_details_screen.dart';
 import 'package:flutter/material.dart';
 import '../features/auth/presentaion/screens/signin_screen.dart';
 import '../features/auth/presentaion/screens/signup_screen.dart';
@@ -38,6 +40,9 @@ MaterialPageRoute onGenerateRoute(RouteSettings settings){
   }else if(settings.name == AddRoutineScreen.name){
     final day = settings.arguments as String;
     screen = AddRoutineScreen(day: day);
+  }else if(settings.name == TaskDetailsScreen.name){
+    final taskModel = settings.arguments as TaskModel;
+    screen = TaskDetailsScreen(taskModel: taskModel);
   }
   return MaterialPageRoute(builder: (context)=>screen);
 }

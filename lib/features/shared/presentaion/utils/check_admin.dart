@@ -28,6 +28,7 @@ Future<void> checkAdmin(String classId, String uid) async {
     try {
       LocalDbHelper dbHelper = LocalDbHelper.getInstance();
       final model = await dbHelper.getClass(classId);
+      print(model);
       AuthController.isAdmin = model!.admins.contains(uid);
     } catch (e) {
       print("❌ Error checking admin status from local db: $e");

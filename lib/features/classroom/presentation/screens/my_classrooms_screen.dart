@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:EduLink/core/services/connectivity_service.dart';
+import 'package:EduLink/core/services/notification_sevice.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -146,11 +147,12 @@ class _MyClassroomsState extends State<MyClassrooms> {
               title: const Text("Logout"),
               onTap: () async {
                 print(AuthController.user);
-                await FirebaseAuth.instance.signOut();
                 AuthController.user = null;
                 AuthController.classDocId = null;
                 AuthController.isAdmin = false;
                 await Get.find<AuthController>().clearUserData();
+                await NotificationService().cancelAllNotifications();
+                await FirebaseAuth.instance.signOut();
                 Navigator.pushNamedAndRemoveUntil(
                   context,
                   SigninScreen.name,

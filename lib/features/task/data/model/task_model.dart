@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/services/local_db_helper.dart';
+import 'attachments_model.dart';
 
 class TaskModel {
   final String? id;
@@ -12,6 +13,7 @@ class TaskModel {
   final Timestamp deadline;
   final Timestamp? assignedDate;
   final List<String> completedBy;
+  final List<AttachmentsModel> attachments;
 
   TaskModel({
     this.id,
@@ -20,6 +22,7 @@ class TaskModel {
     required this.deadline,
     this.assignedDate,
     this.completedBy = const [],
+    this.attachments = const [],
   });
 
   factory TaskModel.fromFireStore(Map<String, dynamic> jsonData, String id) {
@@ -32,20 +35,18 @@ class TaskModel {
       completedBy: jsonData['completedBy'] != null
           ? List<String>.from(jsonData['completedBy'])
           : [],
+      attachments: jsonData['attachments'] !=null ? (jsonData['attachments'] as List).map((e)=>AttachmentsModel.fromMap(e)).toList():[]
     );
   }
 
-  Map<String, dynamic> toFireStore(
-    String title,
-    String description,
-    Timestamp deadline,
-  ) {
+  Map<String, dynamic> toFireStore() {
     return {
       'title': title,
       'description': description,
       'deadline': deadline,
       'assignedDate': Timestamp.now(),
       'completedBy': completedBy,
+      'attachments': attachments,
     };
   }
 
@@ -95,3 +96,5 @@ class TaskModel {
     }
   }
 }
+
+

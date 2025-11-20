@@ -1,3 +1,4 @@
+import 'package:EduLink/core/services/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:EduLink/features/task/presentation/widgets/task_tile.dart';
 
@@ -5,8 +6,9 @@ import '../../../shared/presentaion/widgets/show_dialog.dart';
 import '../../data/model/task_model.dart';
 
 class TaskView extends StatefulWidget {
-  const TaskView({super.key,required this.listOfData,required this.refresh});
+  const TaskView({super.key,required this.listOfData,required this.refresh, required this.isListOfCompletedTask});
   final List<TaskModel> listOfData;
+  final bool isListOfCompletedTask;
 
   final Function(bool) refresh;
 
@@ -34,11 +36,13 @@ class _TaskViewState extends State<TaskView> {
         final item = widget.listOfData[index];
         return GestureDetector(
           onLongPress: () {
-            buildShowDialog(context, item);
+            if(AuthController.isAdmin)
+                  buildShowDialog(context, item);
           },
           child: TaskTile(
             index: index,
             taskModel: item,
+            IsCompletedTask: widget.isListOfCompletedTask,
             refresh: (value) {
               if (value == true) {
                 widget.refresh(true);

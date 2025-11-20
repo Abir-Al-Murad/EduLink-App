@@ -1,4 +1,5 @@
 import 'package:EduLink/core/services/notification_sevice.dart';
+import 'package:EduLink/features/task/presentation/screens/task_details_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:EduLink/app/collections.dart';
@@ -12,8 +13,9 @@ import '../../../../app/app_colors.dart';
 class TaskTile extends StatelessWidget {
   final int index;
   final TaskModel taskModel;
+  final bool IsCompletedTask;
 
-  const TaskTile({super.key, required this.index, required this.taskModel, required this.refresh});
+  const TaskTile({super.key, required this.index, required this.taskModel, required this.refresh,required this.IsCompletedTask});
 
   final Function(bool)  refresh;
 
@@ -45,7 +47,7 @@ class TaskTile extends StatelessWidget {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.themeColor.withOpacity(0.3),
+                  color:  AppColors.themeColor.withOpacity(0.3),
                   blurRadius: 6,
                   offset: const Offset(0, 2),
                 ),
@@ -97,13 +99,13 @@ class TaskTile extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      Icons.access_time,
+                      IsCompletedTask?Icons.done_all_outlined:Icons.access_time,
                       size: 12,
                       color: _getDeadlineIconColor(context),
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      "Due: ${formatDate(taskModel.deadline)}",
+                      IsCompletedTask?"Task Completed":"Due: ${formatDate(taskModel.deadline)}",
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
@@ -128,7 +130,8 @@ class TaskTile extends StatelessWidget {
             ),
           ),
           onTap: () {
-            _showTaskDetails(context);
+            Navigator.pushNamed(context, TaskDetailsScreen.name,arguments: taskModel);
+            // _showTaskDetails(context);
           },
         ),
       ),
@@ -136,6 +139,10 @@ class TaskTile extends StatelessWidget {
   }
 
   Color _getDeadlineColor(BuildContext context) {
+
+    if(IsCompletedTask){
+      return Colors.green.shade50;
+    }
     final now = DateTime.now();
     final deadlineDate = taskModel.deadline.toDate();
     final difference = deadlineDate.difference(now).inDays;
@@ -152,6 +159,9 @@ class TaskTile extends StatelessWidget {
   }
 
   Color _getDeadlineIconColor(BuildContext context) {
+    if(IsCompletedTask){
+      return Colors.green.shade600;
+    }
     final now = DateTime.now();
     final deadlineDate = taskModel.deadline.toDate();
     final difference = deadlineDate.difference(now).inDays;
@@ -306,37 +316,39 @@ class TaskTile extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          List<String> completedBy = taskModel.completedBy;
-                          completedBy.add(AuthController.user!.uid);
-                          print("CompletedBy : ${taskModel.completedBy}");
-                          await FirebaseFirestore.instance
-                              .collection(Collectons.classes)
-                              .doc(AuthController.classDocId)
-                              .collection(Collectons.tasks)
-                              .doc(taskModel.id)
-                              .update({
-                            'completedBy':completedBy,
-                          });
-                          NotificationService _notificationService = NotificationService();
-                          await _notificationService.cancelTaskNotifications(taskModel.id!);
-                          ShowSnackBarMessage(context, "${taskModel.title} marked as completed");
-                          refresh(true);
-                          Navigator.pop(context);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.themeColor,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                    if(!IsCompletedTask)
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            List<String> completedBy = taskModel.completedBy;
+                            completedBy.add(AuthController.user!.uid);
+                            print("CompletedBy : ${taskModel.completedBy}");
+                            await FirebaseFirestore.instance
+                                .collection(Collectons.classes)
+                                .doc(AuthController.classDocId)
+                                .collection(Collectons.tasks)
+                                .doc(taskModel.id)
+                                .update({
+                              'completedBy':completedBy,
+                            });
+                            NotificationService _notificationService = NotificationService();
+                            await _notificationService.cancelTaskNotifications(taskModel.id!);
+                            ShowSnackBarMessage(context, "${taskModel.title} marked as completed");
+                            refresh(true);
+                            Navigator.pop(context);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.themeColor,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: const Text("Mark Complete"),
                         ),
-                        child: const Text("Mark Complete"),
                       ),
-                    ),
+
                   ],
                 ),
               ],

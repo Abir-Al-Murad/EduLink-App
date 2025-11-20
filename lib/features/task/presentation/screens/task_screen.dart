@@ -81,7 +81,6 @@ class _TaskScreenState extends State<TaskScreen>{
         return !task.completedBy.contains(currentUserId) && task.deadline.toDate().isAfter(DateTime.now());
       }).toList();
       NotificationService _notificationService = NotificationService();
-      _notificationService.cancelAllNotifications();
       for(TaskModel task in unCompletedTasks){
         await _notificationService.scheduleTaskDeadlineNotification(taskId: task.id!, title: task.title, body: task.description, deadline: task.deadline);
       }
@@ -185,7 +184,7 @@ class _TaskScreenState extends State<TaskScreen>{
                   SizedBox(height: 10),
 
                    ValueListenableBuilder(valueListenable: selectedIndex, builder: (context,index,_){
-                     return TaskView(listOfData: index == 0?uncompletedTasks:completedTasks, refresh: (bool refresh) {
+                     return TaskView(listOfData: index == 0?uncompletedTasks:completedTasks, isListOfCompletedTask: index  == 0?false:true,refresh: (bool refresh) {
 
                        if(refresh == true){
                          setState(() {

@@ -50,6 +50,7 @@ class SigninAndSignupController extends GetxController {
               .doc(user.uid)
               .set(userMap, SetOptions(merge: true));
           LocalDbHelper instance = LocalDbHelper.getInstance();
+          await Get.find<AuthController>().saveUserData(UserModel.fromFireStore(userMap));
           final userDoc = await FirebaseFirestore.instance.collection(Collectons.users).doc(FirebaseAuth.instance.currentUser!.uid).get();
           await instance.addUser(model: UserModel.fromFireStore(userDoc.data()!));
           AuthController.user = UserModel.fromFireStore(userDoc.data()!);
@@ -108,6 +109,7 @@ class SigninAndSignupController extends GetxController {
             'fcmToken':token,
             'lastLogin':FieldValue.serverTimestamp(),
           };
+          await Get.find<AuthController>().saveUserData(UserModel.fromFireStore(userMap));
           if (!doc.exists) {
             // 🆕 New user → create document
             await userRef.set(userMap);
@@ -121,6 +123,7 @@ class SigninAndSignupController extends GetxController {
           LocalDbHelper instance = LocalDbHelper.getInstance();
           instance.addUser(model: UserModel.fromFireStore(userMap));
           AuthController.user = UserModel.fromFireStore(userMap);
+
           isSuccess = true;
         }
       }
