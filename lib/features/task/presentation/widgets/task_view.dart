@@ -4,6 +4,7 @@ import 'package:EduLink/features/task/presentation/widgets/task_tile.dart';
 
 import '../../../shared/presentaion/widgets/show_dialog.dart';
 import '../../data/model/task_model.dart';
+import '../screens/task_details_screen.dart';
 
 class TaskView extends StatefulWidget {
   const TaskView({super.key,required this.listOfData,required this.refresh, required this.isListOfCompletedTask});
@@ -35,19 +36,33 @@ class _TaskViewState extends State<TaskView> {
       itemBuilder: (context, index) {
         final item = widget.listOfData[index];
         return GestureDetector(
-          onLongPress: () {
-            if(AuthController.isAdmin)
-                  buildShowDialog(context, item);
+          onLongPress: () async{
+            if(AuthController.isAdmin){
+
+              final res = await buildShowDialog(context, item);
+              if(res == true){
+                widget.refresh(true);
+              }
+            }
           },
-          child: TaskTile(
-            index: index,
-            taskModel: item,
-            IsCompletedTask: widget.isListOfCompletedTask,
-            refresh: (value) {
-              if (value == true) {
+          child: GestureDetector(
+            onTap: ()async {
+              final res = await Navigator.pushNamed(context, TaskDetailsScreen.name,arguments: item);
+              if(res == true){
+                print("Printing refresh : $res");
                 widget.refresh(true);
               }
             },
+            child: TaskTile(
+              index: index,
+              taskModel: item,
+              IsCompletedTask: widget.isListOfCompletedTask,
+              refresh: (value) {
+                if (value == true) {
+                  widget.refresh(true);
+                }
+              },
+            ),
           ),
         );
       },

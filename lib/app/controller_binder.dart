@@ -1,3 +1,4 @@
+import 'package:EduLink/core/services/file_upload_service.dart';
 import 'package:get/get.dart';
 import 'package:EduLink/core/services/auth_controller.dart';
 import 'package:EduLink/features/auth/presentaion/controllers/signin_and_signup_controller.dart';
@@ -18,5 +19,6 @@ class ControllerBinding extends Bindings {
     Get.put(SigninAndSignupController());
     Get.put(ReportAndFeedBackController());
     Get.put(AuthController());
+    Get.put(FileUploadService());
   }
 }

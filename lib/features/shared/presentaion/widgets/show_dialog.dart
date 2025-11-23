@@ -133,7 +133,7 @@ Future<dynamic> buildShowDialog(BuildContext context, TaskModel item) {
                         ),
                         onPressed: () async {
                           bool isDeleted = await controller.deleteTask(item.id!,AuthController.classDocId!);
-                          Navigator.pop(context);
+                          Navigator.pop(context,true);
                           ShowSnackBarMessage(
                             context,
                             isDeleted

@@ -10,7 +10,6 @@ class TaskController extends GetxController {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
-
   Future<bool> addNewTask(TaskModel model, String classDocId) async {
     _isLoading = true;
     try {
@@ -19,9 +18,7 @@ class TaskController extends GetxController {
           .doc(classDocId)
           .collection(Collectons.tasks);
 
-      await taskCollection.add(
-        model.toFireStore(),
-      );
+      await taskCollection.add(model.toFireStore());
       print('Task Added at : ${classDocId}');
       _isLoading = false;
       update();
@@ -54,15 +51,27 @@ class TaskController extends GetxController {
     }
   }
 
-  Future<bool> addAttachment(AttachmentsModel model,String classId,String taskId)async{
+  Future<bool> submitAttachment(
+    AttachmentsModel model,
+    String classId,
+    String taskId,
+  ) async {
     bool isSuccess = false;
     _isLoading = true;
     update();
-    try{
-      FirebaseFirestore.instance.collection(Collectons.classes).doc(classId).collection(Collectons.tasks).doc(taskId).update(model.toMap());
-      isSuccess = true;
+    try {
 
-    }catch(e){
+      Map<String,dynamic> map = model.toMap();
+      FirebaseFirestore.instance
+          .collection(Collectons.classes)
+          .doc(classId)
+          .collection(Collectons.tasks)
+          .doc(taskId)
+          .update({
+        'attachments':FieldValue.arrayUnion([map])
+      });
+      isSuccess = true;
+    } catch (e) {
       isSuccess = false;
       debugPrint("Failed to add attachment at Task - $taskId");
     }

@@ -188,7 +188,8 @@ class _TaskScreenState extends State<TaskScreen>{
 
                        if(refresh == true){
                          setState(() {
-
+                           selectedIndex.value = 0;
+                          _allTasks =  _fetchData();
                          });
                        }
                      },);

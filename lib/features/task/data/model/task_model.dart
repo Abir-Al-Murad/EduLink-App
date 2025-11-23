@@ -25,6 +25,27 @@ class TaskModel {
     this.attachments = const [],
   });
 
+  TaskModel copyWith({
+    String? id,
+    String? title,
+    String? description,
+    Timestamp? deadline,
+    Timestamp? assignedDate,
+    List<String>? completedBy,
+    List<AttachmentsModel>? attachments,
+  }) {
+    return TaskModel(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      deadline: deadline ?? this.deadline,
+      assignedDate: assignedDate ?? this.assignedDate,
+      completedBy: completedBy ?? this.completedBy,
+      attachments: attachments ?? this.attachments,
+    );
+  }
+
+
   factory TaskModel.fromFireStore(Map<String, dynamic> jsonData, String id) {
     return TaskModel(
       id: id,
