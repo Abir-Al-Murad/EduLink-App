@@ -1,5 +1,5 @@
+import 'package:EduLink/app/app_colors.dart';
 import 'package:flutter/material.dart';
-import 'animated_slider_background.dart';
 import 'tab_card.dart';
 
 class TaskSelector extends StatefulWidget {
@@ -11,42 +11,8 @@ class TaskSelector extends StatefulWidget {
   State<TaskSelector> createState() => _TaskSelectorState();
 }
 
-class _TaskSelectorState extends State<TaskSelector> with SingleTickerProviderStateMixin {
+class _TaskSelectorState extends State<TaskSelector> {
   int selectedTask = 0;
-  late AnimationController _controller;
-  late Animation<double> _slideAnimation;
-  late Animation<double> _scaleAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      vsync: this,
-    );
-
-    _slideAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOutCubic,
-    ));
-
-    _scaleAnimation = Tween<double>(
-      begin: 0.95,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutBack,
-    ));
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
 
   void _onTaskSelected(int index) {
     if (selectedTask == index) return;
@@ -55,8 +21,6 @@ class _TaskSelectorState extends State<TaskSelector> with SingleTickerProviderSt
       selectedTask = index;
       widget.onSelect(index);
     });
-
-    _controller.forward(from: 0.0);
   }
 
   @override
@@ -74,29 +38,45 @@ class _TaskSelectorState extends State<TaskSelector> with SingleTickerProviderSt
         ],
       ),
       padding: const EdgeInsets.all(4),
-      child: Stack(
+      child: Row(
         children: [
-          AnimatedSliderBackground(slideAnimation: _slideAnimation, selectedTask: selectedTask, scaleAnimation: _scaleAnimation),
-          Row(
-            children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => _onTaskSelected(0),
-                  child: TabCard(selectedTask: selectedTask == 0,title: 'Uncompleted',),
+          // UNCOMPLETED
+          Expanded(
+            child: GestureDetector(
+              onTap: () => _onTaskSelected(0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: selectedTask == 0 ? AppColors.themeColor : Colors.transparent,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 3),
+                child: TabCard(
+                  selectedTask: selectedTask == 0,
+                  title: 'Uncompleted',
                 ),
               ),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => _onTaskSelected(1),
-                  child: TabCard(selectedTask: selectedTask == 1,title: 'Completed',),
+            ),
+          ),
+
+          // COMPLETED
+          Expanded(
+            child: GestureDetector(
+              onTap: () => _onTaskSelected(1),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: selectedTask == 1 ? AppColors.themeColor : Colors.transparent,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 3),
+                child: TabCard(
+                  selectedTask: selectedTask == 1,
+                  title: 'Completed',
                 ),
               ),
-            ],
+            ),
           ),
         ],
       ),
     );
   }
 }
-
-

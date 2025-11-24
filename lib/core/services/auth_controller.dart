@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../features/classroom/data/models/class_room_model.dart';
-import '../../features/profile/data/models/user_model.dart';
+import '../../features/my class/data/models/user_model.dart';
 
 class AuthController extends GetxController{
   static String? classDocId;

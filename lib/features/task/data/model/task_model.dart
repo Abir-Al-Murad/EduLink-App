@@ -14,6 +14,8 @@ class TaskModel {
   final Timestamp? assignedDate;
   final List<String> completedBy;
   final List<AttachmentsModel> attachments;
+  final String createdBy;
+  final String creatorName;
 
   TaskModel({
     this.id,
@@ -23,6 +25,8 @@ class TaskModel {
     this.assignedDate,
     this.completedBy = const [],
     this.attachments = const [],
+    required this.createdBy,
+    required this.creatorName,
   });
 
   TaskModel copyWith({
@@ -42,6 +46,8 @@ class TaskModel {
       assignedDate: assignedDate ?? this.assignedDate,
       completedBy: completedBy ?? this.completedBy,
       attachments: attachments ?? this.attachments,
+      createdBy: this.createdBy,
+      creatorName: this.creatorName,
     );
   }
 
@@ -56,7 +62,10 @@ class TaskModel {
       completedBy: jsonData['completedBy'] != null
           ? List<String>.from(jsonData['completedBy'])
           : [],
-      attachments: jsonData['attachments'] !=null ? (jsonData['attachments'] as List).map((e)=>AttachmentsModel.fromMap(e)).toList():[]
+      attachments: jsonData['attachments'] !=null ? (jsonData['attachments'] as List).map((e)=>AttachmentsModel.fromMap(e)).toList():[],
+      createdBy: jsonData['createdBy']??'',
+      creatorName: jsonData['creatorName']??'',
+
     );
   }
 
@@ -68,6 +77,8 @@ class TaskModel {
       'assignedDate': Timestamp.now(),
       'completedBy': completedBy,
       'attachments': attachments,
+      'createdBy':createdBy,
+      'creatorName':creatorName,
     };
   }
 
@@ -78,6 +89,8 @@ class TaskModel {
       'deadline': deadline,
       'assignedDate': assignedDate,
       'completedBy': completedBy,
+      'createdBy':createdBy,
+      'creatorName':creatorName,
     };
   }
 
@@ -108,7 +121,7 @@ class TaskModel {
         completedBy: jsonData[LocalDbHelper.COLUMN_COMPLETED_BY] != null &&
             (jsonData[LocalDbHelper.COLUMN_COMPLETED_BY] as String).isNotEmpty
             ? List<String>.from(jsonDecode(jsonData[LocalDbHelper.COLUMN_COMPLETED_BY] as String))
-            : [],
+            : [], createdBy: '',creatorName: ''
       );
     } catch (e) {
       debugPrint("❌ Error parsing TaskModel from map: $e");

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:EduLink/core/services/connectivity_service.dart';
 import 'package:EduLink/core/services/notification_sevice.dart';
+import 'package:EduLink/features/edit%20profile/presentation/screens/edit_profile_screen.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -11,7 +12,7 @@ import '../../../../app/app_colors.dart';
 import '../../../../core/services/auth_controller.dart';
 import '../../../../core/services/local_db_helper.dart';
 import '../../../auth/presentaion/screens/signin_screen.dart';
-import '../../../profile/data/models/user_model.dart';
+import '../../../my class/data/models/user_model.dart';
 import '../../../report and feedback/presentation/screens/report_and_feedback.dart';
 import '../../../shared/presentaion/screens/bottom_nav_holder.dart';
 import '../../../shared/presentaion/widgets/ShowSnackBarMessage.dart';
@@ -107,7 +108,6 @@ class _MyClassroomsState extends State<MyClassrooms> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Drawer Header
             UserAccountsDrawerHeader(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -119,15 +119,26 @@ class _MyClassroomsState extends State<MyClassrooms> {
                   end: Alignment.bottomRight,
                 ),
               ),
-              currentAccountPicture: const CircleAvatar(
+              currentAccountPicture: CircleAvatar(
                 backgroundColor: Colors.white,
-                child: Icon(Icons.person, color: Colors.blueAccent, size: 40),
+                backgroundImage:NetworkImage(userModel.photoUrl),
               ),
+
               accountName: Text(
                 userModel.name,
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               accountEmail: Text(userModel.email),
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.edit,
+                color: Colors.black87,
+              ),
+              title: const Text("Edit Profile"),
+              onTap: () {
+                Navigator.pushNamed(context, EditProfileScreen.name);
+              },
             ),
             ListTile(
               leading: const Icon(
@@ -139,6 +150,7 @@ class _MyClassroomsState extends State<MyClassrooms> {
                 Navigator.pushNamed(context, ReportAndFeedback.name);
               },
             ),
+
             const Divider(),
 
 

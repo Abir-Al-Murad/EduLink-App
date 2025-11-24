@@ -1,8 +1,8 @@
+import 'package:EduLink/features/my%20class/presentaion/screens/my_class_screen.dart';
 import 'package:EduLink/features/task/presentation/screens/task_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:EduLink/features/notice/presentation/screens/notice_screen.dart';
-import 'package:EduLink/features/profile/presentaion/screens/profile_screen.dart';
 import 'package:EduLink/features/routine/presentation/screens/routine_screen.dart';
 import 'package:EduLink/features/shared/presentaion/controllers/main_nav_controller.dart';
 
@@ -23,7 +23,7 @@ class _BottomNavHolderState extends State<BottomNavHolder> {
     TaskScreen(),
     NoticeScreen(),
     RoutineScreen(),
-    ProfileScreen(),
+    MyClassScreen(),
   ];
   final MainNavControler mainNavControler = Get.find<MainNavControler>();
 

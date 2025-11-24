@@ -6,19 +6,21 @@ import 'package:EduLink/app/app_colors.dart';
 import 'package:EduLink/app/collections.dart';
 import 'package:EduLink/core/services/auth_controller.dart';
 import 'package:EduLink/features/classroom/presentation/screens/my_classrooms_screen.dart';
-import 'package:EduLink/features/profile/data/models/user_model.dart';
-import 'package:EduLink/features/profile/presentaion/screens/members_list_screen.dart';
 import 'package:EduLink/features/shared/presentaion/controllers/main_nav_controller.dart';
 import 'package:EduLink/features/shared/presentaion/widgets/ShowSnackBarMessage.dart';
 
-class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+import '../../data/models/user_model.dart';
+import 'members_list_screen.dart';
+import 'my_assigned_tasks_screen.dart';
+
+class MyClassScreen extends StatefulWidget {
+  const MyClassScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  State<MyClassScreen> createState() => _MyClassScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _MyClassScreenState extends State<MyClassScreen> {
   UserModel? userModel;
   bool _isLoading = true;
 
@@ -47,7 +49,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } catch (e) {
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error fetching profile: $e")),
+        SnackBar(content: Text("Error fetching my class: $e")),
       );
     }
   }
@@ -73,15 +75,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               height: 240,
               width: double.infinity,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.themeColor,
-                    AppColors.mediumThemeColor,
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(30)
+                  gradient: LinearGradient(
+                    colors: [
+                      AppColors.themeColor,
+                      AppColors.mediumThemeColor,
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(30)
               ),
               child: Stack(
                 children: [
@@ -146,6 +148,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   // Info Cards
                   _buildInfoCard(),
+                  const SizedBox(height: 10,),
+                  _buildTaskSection(),
+
 
                   const SizedBox(height: 20),
 
@@ -156,6 +161,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+
+  Widget _buildTaskSection() {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ListTile(
+        leading: Icon(Icons.assignment_outlined, color: AppColors.themeColor),
+        title: Text(
+          "Tasks I Assigned",
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.grey.shade800,
+          ),
+        ),
+        trailing: Icon(Icons.arrow_forward_ios_rounded, size: 16),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => MyAssignedTasksListScreen()),
+          );
+        },
       ),
     );
   }

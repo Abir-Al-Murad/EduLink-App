@@ -50,7 +50,7 @@ class FileUploadService extends GetxController {
     }
   }
 
-  Future<XFile?> pickImage({required ImageSource source}) async {
+  Future<File?> pickImage({required ImageSource source}) async {
     try {
       final ImagePicker picker = ImagePicker();
       final XFile? image = await picker.pickImage(
@@ -60,7 +60,7 @@ class FileUploadService extends GetxController {
         imageQuality: 85,
       );
       if (image != null) {
-        return image;
+        return File(image.path);
       }
       return null;
     } catch (e) {
@@ -69,7 +69,7 @@ class FileUploadService extends GetxController {
     }
   }
 
-  Future<AttachmentsModel?> uploadFile(File file, String studentId, String taskId) async {
+  Future<AttachmentsModel?> uploadFile(File file, String studentId, String taskId,String studentName) async {
     try {
       String fileName = const Uuid().v4();
       final storageRef = _storage.ref().child('uploads/$fileName');
@@ -95,7 +95,7 @@ class FileUploadService extends GetxController {
         fileUrl: downloadUrl,
         studentId: studentId,
         fileName: basename(file.path),
-        uploadedAt: Timestamp.now(),
+        uploadedAt: Timestamp.now(), studentName:studentName,
       );
       _firestore
           .collection(Collectons.classes)

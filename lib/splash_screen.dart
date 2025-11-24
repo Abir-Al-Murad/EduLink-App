@@ -1,7 +1,7 @@
 import 'package:EduLink/app/collections.dart';
 import 'package:EduLink/core/services/connectivity_service.dart';
 import 'package:EduLink/core/services/notification_sevice.dart';
-import 'package:EduLink/features/profile/data/models/user_model.dart';
+import 'package:EduLink/core/services/update_checker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -14,6 +14,7 @@ import 'package:EduLink/features/auth/presentaion/screens/signin_screen.dart';
 import 'package:EduLink/features/classroom/presentation/screens/my_classrooms_screen.dart';
 
 import 'features/auth/presentaion/widgets/hero_logo.dart';
+import 'features/my class/data/models/user_model.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -37,6 +38,8 @@ class _SplashScreenState extends State<SplashScreen> {
     }
 
     service.listenForegroundMessages();
+    UpdateChecker checker =UpdateChecker(context);
+    await checker.checkForUpdate();
    await checkLoginStatus();
    final messaging = FirebaseMessaging.instance;
    await messaging.requestPermission();

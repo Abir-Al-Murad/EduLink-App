@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import '../../../../app/collections.dart';
 import '../../../../core/services/auth_controller.dart';
 import '../../../../core/services/local_db_helper.dart';
-import '../../../profile/data/models/user_model.dart';
+import '../../../my class/data/models/user_model.dart';
 import '../../data/models/class_room_model.dart';
 
 class ClassRoomController extends GetxController {

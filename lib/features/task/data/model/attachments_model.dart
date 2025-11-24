@@ -5,12 +5,14 @@ class AttachmentsModel {
   final String fileUrl;
   final String fileName;
   final Timestamp uploadedAt;
+  final String studentName;
 
   AttachmentsModel({
     required this.fileUrl,
     required this.studentId,
     required this.uploadedAt,
     required this.fileName,
+    required this.studentName,
   });
 
   AttachmentsModel copyWith({
@@ -24,6 +26,7 @@ class AttachmentsModel {
       fileUrl: fileUrl ?? this.fileUrl,
       fileName: fileName ?? this.fileName,
       uploadedAt: uploadedAt ?? this.uploadedAt,
+      studentName: this.studentName,
     );
   }
 
@@ -33,6 +36,7 @@ class AttachmentsModel {
       studentId: map['studentId'],
       fileName: map['fileName']??"File",
       uploadedAt: (map['uploadedAt'] as Timestamp),
+      studentName: map['studentName']??"Unknown",
     );
   }
   Map<String, dynamic> toMap() {
@@ -41,6 +45,7 @@ class AttachmentsModel {
       'fileUrl': fileUrl,
       'uploadedAt': uploadedAt,
       'fileName':fileName,
+      'studentName':studentName,
     };
   }
 }

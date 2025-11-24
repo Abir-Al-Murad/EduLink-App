@@ -19,6 +19,26 @@ class UserModel {
     this.lastLogin,
   }):joinedClasses = joinedClasses??[];
 
+  UserModel copyWith({
+    String? uid,
+    String? name,
+    String? email,
+    String? photoUrl,
+    String? fcmToken,
+    List<String>? joinedClasses,
+    Timestamp? lastLogin,
+  }) {
+    return UserModel(
+      uid: uid ?? this.uid,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      photoUrl: photoUrl ?? this.photoUrl,
+      fcmToken: fcmToken ?? this.fcmToken,
+      joinedClasses: joinedClasses ?? this.joinedClasses,
+      lastLogin: lastLogin ?? this.lastLogin,
+    );
+  }
+
 
   factory UserModel.fromFireStore(Map<String, dynamic> data) {
     dynamic lastLoginData = data['lastLogin'];

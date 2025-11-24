@@ -146,7 +146,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       ShowSnackBarMessage(context, "Please fill all fields");
       return;
     }else{
-      TaskModel model = TaskModel(title: titleController.text.trim(), description: descriptionController.text.trim(), deadline: Timestamp.fromDate(deadline!));
+      TaskModel model = TaskModel(title: titleController.text.trim(), description: descriptionController.text.trim(), deadline: Timestamp.fromDate(deadline!), createdBy: AuthController.userId!, creatorName: AuthController.user!.name);
      final bool isSucces =  await _taskController.addNewTask(model,AuthController.classDocId!);
      if(isSucces){
        _onTaskAdded(model);

@@ -450,7 +450,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen>
         mainAxisSize: MainAxisSize.min,
         children: [
           TextButton(
-            onPressed:_onTapAttachment,
+            onPressed:_isCompleted.value?null:_onTapAttachment,
             child: pickedFile == null && url == null
                 ? Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -511,26 +511,28 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen>
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
-            child: _isSubmitting || _isUndoing
-                ? const SizedBox(
-                    height: 24,
-                    width: 24,
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                      strokeWidth: 3,
-                    ),
-                  )
-                : Row(
+            child:Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.check_circle_outline, size: 24),
+                      _isSubmitting || _isUndoing
+                          ? const SizedBox(
+                        height: 24,
+                        width: 24,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 3,
+                        ),
+                      )
+                          :
+                      _isCompleted.value == false?const Icon(Icons.check_circle_outline, size: 24):Icon(Icons.arrow_upward,color: Colors.yellow,),
                       const SizedBox(width: 12),
                       Text(
                         !_isCompleted.value? "Submit Task":"Withdraw Submission",
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 0.5,
+                          color: _isCompleted.value?Colors.amberAccent:Colors.white
                         ),
                       ),
                     ],
@@ -632,6 +634,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen>
           pickedFile!,
           AuthController.userId!,
           model.id!,
+          AuthController.user!.name,
         );
 
         await docRef.update({

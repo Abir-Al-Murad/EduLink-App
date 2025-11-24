@@ -8,7 +8,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import '../../../../app/collections.dart';
 import '../../../../core/services/auth_controller.dart';
 import '../../../../core/services/local_db_helper.dart';
-import '../../../profile/data/models/user_model.dart';
+import '../../../my class/data/models/user_model.dart';
 
 
 class SigninAndSignupController extends GetxController {
@@ -37,20 +37,20 @@ class SigninAndSignupController extends GetxController {
         final user = userCredential.user;
         final token = await FirebaseMessaging.instance.getToken();
         if(user !=null){
-          Map<String,dynamic>userMap = {
-            'name':user.displayName,
-            'photoUrl':user.photoURL,
-            'uid':user.uid,
-            'email':user.email,
-            'fcmToken':token,
-            'lastLogin':Timestamp.now(),
-          };
+
           await FirebaseFirestore.instance
               .collection(Collectons.users)
               .doc(user.uid)
-              .set(userMap, SetOptions(merge: true));
+              .update({
+            'fcmToken':token
+          });
+
+          final doc = await FirebaseFirestore.instance.collection(Collectons.users).doc(user.uid).get();
+          final data = doc.data();
+
+
           LocalDbHelper instance = LocalDbHelper.getInstance();
-          await Get.find<AuthController>().saveUserData(UserModel.fromFireStore(userMap));
+          await Get.find<AuthController>().saveUserData(UserModel.fromFireStore(data!));
           final userDoc = await FirebaseFirestore.instance.collection(Collectons.users).doc(FirebaseAuth.instance.currentUser!.uid).get();
           await instance.addUser(model: UserModel.fromFireStore(userDoc.data()!));
           AuthController.user = UserModel.fromFireStore(userDoc.data()!);
